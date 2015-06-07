@@ -133,6 +133,7 @@ bool Menu::setInputFile(string fileName)
 	*/
 void Menu::runMenu()
 {
+	system("cls");
 	displayMenu();
 	switch (this->makeChoice())
 	{

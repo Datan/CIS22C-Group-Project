@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include "LinkedGraph.h"
+#include "Menu.h"
 
 using namespace std;
 
