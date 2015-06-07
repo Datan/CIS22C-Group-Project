@@ -68,7 +68,6 @@
     <ClInclude Include="DACmap.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="GraphInterface.h" />
-    <ClInclude Include="Kruskal.h" />
     <ClInclude Include="LinkedGraph.h" />
     <ClInclude Include="LinkedStack.h" />
     <ClInclude Include="Menu.h" />
