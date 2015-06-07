@@ -64,12 +64,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="ArrayStack.h" />
     <ClInclude Include="DACmap.h" />
     <ClInclude Include="Edge.h" />
+    <ClInclude Include="GraphInterface.h" />
+    <ClInclude Include="Kruskal.h" />
+    <ClInclude Include="LinkedGraph.h" />
+    <ClInclude Include="LinkedStack.h" />
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="MenuInterface.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="StackInterface.h" />
     <ClInclude Include="Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

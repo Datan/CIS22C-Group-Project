@@ -1,8 +1,18 @@
 #pragma once
 #include <map>
+/*
+Written by C. Lee-Klawender
 
+The DACmap is the type used in LinkedGraph and Vertex classes
+
+These classes wwere written so you don't have to understand how to use
+the C++ STL map nor its iterator, and has easy-to-use function for access
+*/
 using namespace std;
 
+// Iterator to retrieve ONLY the ItemTypes in the order of the map
+// NOTE: IF YOUR PROJECT NEEDS TO ITERATE TO GET BOTH THE KEY AND THE ITEM,
+//     LET ME KNOW AND I'LL WRITE FUNCTIONS FOR THAT and show you how to use it
 template <class KeyType, class ItemType>
 class DACmapIterator
 {
@@ -11,8 +21,8 @@ private:
 	typename map<KeyType, ItemType>::iterator mapIterator;
 
 public:
-	DACmapIterator(map<KeyType, ItemType> *p){ 
-		pdacMap = p; 
+	DACmapIterator(map<KeyType, ItemType> *p){
+		pdacMap = p;
 		mapIterator = (pdacMap->begin());
 
 	}
@@ -21,6 +31,7 @@ public:
 
 };
 
+// Just a map, but for easier use of a map (dictionary)
 template <class KeyType, class ItemType>
 class DACmap
 {
@@ -30,7 +41,8 @@ private:
 
 public:
 	DACmap(){ thisIterator = 0; }
-	~DACmap(){ if (thisIterator != 0) delete thisIterator; }
+	DACmap(const DACmap &source){ dacMap = source.dacMap; thisIterator = 0; } // UPDATED
+	~DACmap(){ if (thisIterator != 0) delete thisIterator; thisIterator = 0; }
 
 	bool isEmpty() const { return dacMap.empty(); }
 	int getNumberOfItems() const { return dacMap.size(); }
@@ -68,6 +80,7 @@ template <class KeyType, class ItemType>
 void DACmap<KeyType, ItemType>::clear()
 {
 	dacMap.clear();
+	thisIterator = 0;
 }
 
 template <class KeyType, class ItemType>
@@ -96,8 +109,8 @@ bool DACmap<KeyType, ItemType>::contains(const KeyType& searchKey) const
 
 template <class KeyType, class ItemType>
 DACmapIterator<KeyType, ItemType> *DACmap<KeyType, ItemType>::iterator()
-{ 
-	if (thisIterator != 0) 
+{
+	if (thisIterator != 0)
 		delete thisIterator;
 	thisIterator = new DACmapIterator<KeyType, ItemType>(&dacMap);
 	return thisIterator;
