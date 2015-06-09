@@ -103,14 +103,20 @@ bool Prim::disconnectVisitedVertex(Vertex<LabelType>& visitedVertex)
 
 // Algorithm for applyPrim
 /*
-	1/Create a temp vector<PrimEdge>, create a current vertex
+	1/Create a temp vector<PrimEdge>, create a current vertex, create vector<LabelType> visitedVertexVect, bool found = false
 	2/Choose the first Edge in orderedEdge, choose the first vertex (we will use it to start our MST) and set it as Current vertex
-	3/Start for loop, Check in the orderedEdge, find the list of Prim Edge which has the Start vertex same with our current vertex
-	(Just use loop to check orderedEdge. Because it is in ordered, after the next edge isn't same, stop the loop)
-	4/Push them to tempVector
+	3/Start for loop
+	Use another loop to check in the orderedEdge, find the list of Prim Edge which has the Start vertex or End vertex same with our current vertex - update found = true
+	(If cannot find anything - found = false, check in visitedVertexVect, set current vertex to a different one)
+	4/Push them to tempVector, pop out of orderedEdge , end inner loop, found reset to false
 	5/Check in the tempVector which PrimEdge has lowest weight. (Don't reset the tempVector)
 	6/Push that PrimEdge to minSpanTree vector -> pop that edge out of tempVector
-	7/Set current vertex = end vertex of that PrimEdge
-	8/End for loop
-	9/Delete temp vector. 
+	7/Push current vertex into visitedVertexVect
+	8/Current vertex = end vertex of that PrimEdge
+	9/End for loop
+	10/Delete temp vector. 
+
+	The downside of my code is that It must check every single edge in orderedEdge vector for every vertex --> O(n).
+	I intend to improve it by approaching in a different way - using another function disconnectvisitedvertex.
+	However, it's a little bit confused and not really as clear as this approach.
 */
