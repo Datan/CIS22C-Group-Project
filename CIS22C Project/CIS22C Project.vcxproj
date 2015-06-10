@@ -74,6 +74,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MenuInterface.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="Prim.h" />
     <ClInclude Include="StackInterface.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
