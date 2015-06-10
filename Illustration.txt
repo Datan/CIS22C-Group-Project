@@ -1,0 +1,35 @@
+In OrderedEdge vector
+a - b - 6 (Checked = true)
+a - f - 4 (Done)
+a - i - 2 (Done)
+b - c - 7 (Done)
+b - e - 9 (Done)
+c - e - 3 (Done)
+c - d - 4 (Done)
+d - g - 5 (Done)
+d - h - 1 (Done)
+e - g - 8 (Done)
+f - g - 2 (Done)
+
+Current Vertex: e
+
+Found : false
+
+List visited vertices: a ,i, f, g. d, h, c, e
+Stack: a, f, g, d, c, e
+
+TempPrimEdge vector: Check if (both vertex isVisit?)
+d - c - 4
+
+
+
+
+minimum spanning tree: 8 Edges
+a - i - 2
+a - f - 4
+f - g - 2
+d - g - 5
+d - h - 1
+c - d - 4
+c - e - 3
+a - b - 6
