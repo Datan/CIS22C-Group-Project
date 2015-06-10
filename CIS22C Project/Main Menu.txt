@@ -1,0 +1,6 @@
+MAIN MENU
+Set input file
+Modify graph data
+Display graph data
+Solve minimum spanning tree
+Exit Program

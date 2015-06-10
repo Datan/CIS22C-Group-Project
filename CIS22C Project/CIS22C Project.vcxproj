@@ -70,6 +70,7 @@
     <ClInclude Include="GraphInterface.h" />
     <ClInclude Include="LinkedGraph.h" />
     <ClInclude Include="LinkedStack.h" />
+    <ClInclude Include="LoopingMenu.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="MenuInterface.h" />
     <ClInclude Include="Node.h" />
@@ -80,7 +81,11 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Display Menu.txt" />
+    <Text Include="Main Menu.txt" />
+    <Text Include="Modify Menu.txt" />
     <Text Include="Test Input File.txt" />
+    <Text Include="Test Menu.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

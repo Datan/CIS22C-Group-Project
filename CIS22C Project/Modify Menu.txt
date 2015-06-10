@@ -1,0 +1,6 @@
+MODIFY GRAPH DATA
+Add an edge to the eraph
+Undo addition
+Remove an edge from the graph
+Undo removal
+Go back
