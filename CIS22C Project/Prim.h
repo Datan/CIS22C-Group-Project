@@ -38,13 +38,27 @@ class Prim : public LinkedGraph < LabelType >
 			return this->edge.getWeight() < right.getWeight();
 		}
 
+
 	};
 
 private:
+	//Private member variables
 	LinkedStack<PrimEdge<LabelType>> undoStack;
 	vector<PrimEdge<LabelType>> minSpanTree;
-	vector<PrimEdge<LabelType>> orderedEdges;
+	vector<PrimEdge<LabelType>> orderedEdges;	//Probably not what we want for Prim - Luke
+
+	/* Most likely will use this in applyPrims, which are the neighbor edges of visited vertices
+	because unlike Kruskal, Prim does not know the ordering of all the edges to begin with
+	- Luke
+	*/
+	vector<PrimEdge<LabelType>> localOrderedEdges;	
+
+	//Private member functions
 	void applyPrim();
+	localOrderedEdges getLocalUnvisitedNeighbors(vector <Vertex<LabelType>> visitedVertices);
+	void selectionSort(vector<PrimEdge<LabelType>> &array, int size);
+	bool notConnected(LabelType &end1, LabelType &end2);
+
 //	bool disconnectVisitedVertex(Vertex<LabelType>& visitedVertex);
 
 public:
@@ -80,7 +94,6 @@ public:
 		}
 		return LinkedGraph<LabelType>::remove(start, end);
 	}
-
 };
 
 /*
@@ -120,3 +133,87 @@ bool Prim::disconnectVisitedVertex(Vertex<LabelType>& visitedVertex)
 	I intend to improve it by approaching in a different way - using another function disconnectvisitedvertex.
 	However, it's a little bit confused and not really as clear as this approach.
 */
+
+// Beginning of function definitions required for applyPrim()
+
+/** Calls applyPrim to manipulate the minSpanTree private member var
+*/
+template <class LabelType>
+void Prim<LabelType>::createMinSpanTree()
+{
+	applyPrim();
+}
+
+template <class LabelType>
+void Prim<LabelType>::applyPrim()
+{
+
+}
+
+/** Looks at the current Minimal Spanning Tree, and retrieves a listing of all of the
+unvisited neighbor vertices and sorts them in order to find the least - cost edge (v,u)
+where v is a visited vertex and u is an unvisited vertex
+@param visitedVertices - A vector of the vertices which have currently been visited at that point in time within applyPrim()
+@return localOrderedEdges - defined in private member variables
+- Luke
+*/
+template <class LabelType>
+localOrderedEdges Prim<LabelType>::getLocalUnvisitedNeighbors(vector <Vertex<LabelType>> visitedVertices)
+{
+
+}
+/** Uses the selection sort algortihm to sort localOrderedEdges, defined above. 
+@param array - The unsorted localOrdredEdges, will pass by reference as we sort
+- Luke : "I'm adding these fcns to try out, as they seem to be needed in applyPrim()"
+*/
+template <class LabelType>
+void Prim<LabelType>::selectionSort(vector<PrimEdge<LabelType>> &array, int size)
+{
+
+}
+
+/**  Checks if end1 vertex is already connected to end2 vertex in the minimum spanning tree so far
+@param end1 - A vertex in the minimum spanning tree
+@param end2 - A different vertex in the minimum spanning tree
+@return True if the ends are not connected, false if the ends are connected
+- Luke : "Not sure if this is needed in applyPrim() yet, just leaving it here for now"
+*/
+template <class LabelType>
+bool Prim<LabelType>::notConnected(LabelType &end1, LabelType &end2)
+{
+	for (int i = 0; i < minSpanTree.size(); ++i)
+	{
+		// THIS IS REALLY DIFFICULT, BUT NOT SHOWN BECAUSE YOU MAY HAVE
+		//    SIMILAR ALGORITHMS THAT NEED THIS
+		// ETC.
+	}
+	return true;
+}
+
+//End of function definitions required to solve applyPrim()
+
+//Beginning of function definitions to print out things
+template <class LabelType>
+void Prim<LabelType>::writeMinSpanTree(ostream &os)
+{
+	writeVector(os, minSpanTree);
+}
+
+template <class LabelType>
+void Prim<LabelType>::writeLocalOrderedEdges(ostream &os)
+{
+	writeVector(os, localOrderedEdges);
+}
+
+template <class LabelType>
+void Prim<LabelType>::writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect)
+{
+	int size = vect.size();
+	for (int i = 0; i < size; ++i){
+		KruskalEdge<LabelType> edge = vect[i];
+		os << "From " << edge.getStart() << " to " << edge.getEnd()
+			<< " with weight = " << edge.getWeight() << endl;
+	}
+}
+
+
