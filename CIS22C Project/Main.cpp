@@ -40,6 +40,32 @@ void AddEdge()
 	// User enters a weight for the new edge between vertices
 	// Call Prim add function
 }
+void primTest(Prim<string>* graph)
+{
+	graph->add("a", "i", 2);
+	graph->add("a", "b", 6);
+	graph->add("a", "f", 4);
+	graph->add("b", "c", 7);
+	graph->add("b", "e", 9);
+	graph->add("c", "e", 3);
+	graph->add("c", "d", 4);
+	graph->add("e", "g", 8);
+	graph->add("d", "h", 1);
+	graph->add("g", "d", 5);
+	graph->add("f", "g", 2);
+
+	cout << "Vertices :" << graph->getNumVertices() << endl;
+	cout << "Edges :" << graph->getNumEdges() << endl;
+
+	cout << "\nDepth-first traversal (should be A B E F J C G K L D H M I N):" << endl;
+	graph->depthFirstTraversal("a", display);
+
+	cout << "\nBreadth-first traversal (should be A B C D E F G H I J K L M N):" << endl;
+	graph->breadthFirstTraversal("a", display);
+
+	graph->createMinSpanTree();
+	graph->writeMinSpanTree(cout);
+}
 void graphTest(LinkedGraph<string>* testGraph)
 {
    string A("A");
