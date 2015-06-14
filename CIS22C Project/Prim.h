@@ -8,6 +8,8 @@
 #include "Edge.h"
 #include "LinkedStack.h"
 
+using namespace std;
+
 template <class LabelType>
 class Prim : public LinkedGraph < LabelType >
 {
@@ -59,6 +61,7 @@ private:
 	bool notConnected(LabelType &end1, LabelType &end2);
 	void writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect);
 	void writeLocalOrderedEdges(ostream &os);
+	void findRightVertexAndVectEdge(vector<PrimEdge<LabelType>>& tempVect, LabelType &currVertex, vector<LabelType> &visitedVertexVect);
 
 	//	bool disconnectVisitedVertex(Vertex<LabelType>& visitedVertex);
 
@@ -162,26 +165,18 @@ void Prim<LabelType>::applyPrim()
 
 	LabelType firstVertex = orderedEdges[0].getStart();		//Grab the starting vertex of the first orderedEdge
 	LabelType currVertex = firstVertex;		// Change to label type, change all uses to not be a vertex
-	visitedVertexVect.push_back(firstVertex);
+	//visitedVertexVect.push_back(firstVertex); // Don't need
 	//LinkedStack<LabelType> vertexStack;		// We don't need the vertexStack to go back
 
 	for (int i = 0; i < numEdges && edgeCount < numberOfVertices - 1; ++i, edgeCount++)
 	{
 		//vertexStack.push(currVertex); // We don't need the vertexStack to go back
 		found = getLocalUnvisitedNeighbors(currVertex, tempVect);	//Returns the localOrderedEdges connected to the current vertex
+		visitedVertexVect.push_back(currVertex); // must add the vertex into visitedVertexVect immediately before checking
 		if (found)	//If found is true, this means we were able to find adjacent vertices to the currVertex 
 		{
+			findRightVertexAndVectEdge(tempVect, currVertex, visitedVertexVect); // new function, please read
 			minSpanTree.push_back(tempVect[0]);
-			//If statement to check if vertex is the same as start vertex by checking to see if data are the same, assuming unique datum
-			// Turn this into a function
-			if (currVertex == tempVect[0].getStart())
-			{
-				currVertex = tempVect[0].getEnd();
-			}
-			else
-			{
-				currVertex = tempVect[0].getStart();
-			}
 			tempVect.erase(tempVect.begin());
 		}
 		else //We're at a leaf vertex
@@ -221,23 +216,53 @@ void Prim<LabelType>::applyPrim()
 			If we put a to getLocalUnvisitedNeighbors, it definitely return false and our new edge will be (d - c - 4) which is not
 			always right. We have added a new vertex b but we don't add the edges of that vertex into the tempVect.
 			*/
-			for (int j = 0; j < .size(); j++)
-			{
-				if (tempVect[0].getEnd() != visitedVertexVect.at(j))
-					currVertex = tempVect[0].getEnd();
-				if (tempVect[0].getStart() != visitedVertexVect.at(j))
-					currVertex = tempVect[0].getStart();
-			}
+			findRightVertexAndVectEdge(tempVect, currVertex, visitedVertexVect);
 			minSpanTree.push_back(tempVect[0]);
 			tempVect.erase(tempVect.begin());
 
 		}
 		found = false;
-		visitedVertexVect.push_back(currVertex);
 	}
 
 	//Clear memory
 	tempVect.clear();
+}
+
+/*
+findRightVertexndEdge will check the TempVect and delete all of the unavailable edge(Start and End vertices have visited)
+and assign the new vertex into current vertex.
+For example:
+We have a graph of 4 vertices: a, b, c, d. it link all together. It means we have 6 edges: a-b-1, a-c-3, a-d-4, b-c-2 , b-d-6, c-d-5
+Imagine we start at a, we will choose a-b-1 then b-c-2. After this point, we cannot choose a-c-3 because a and c have visited.
+However, in tempVect, it still has a-c-3. Therefore, this function will delete it.
+After we choose the right Edges from tempVect, we can check which end of that edge is suitable to assign to current vertex.
+*/
+template <class LabelType>
+void Prim<LabelType>::findRightVertexAndVectEdge(vector<PrimEdge<LabelType>> &tempVect, LabelType &currVertex, vector<LabelType> &visitedVertexVect)
+{
+	bool startFound = false;
+	bool endFound = false;
+	while ((startFound == false && endFound == false) || (startFound == true && endFound == true))
+	{
+		endFound = false;
+		startFound = false;
+		for (unsigned int j = 0; j < visitedVertexVect.size(); j++)
+		{
+			if (tempVect.at(0).getEnd() == visitedVertexVect.at(j))
+				endFound = true;
+			if (tempVect.at(0).getStart() == visitedVertexVect.at(j))
+				startFound = true;
+		}
+		if (endFound == true && startFound == true)
+		{
+			tempVect.erase(tempVect.begin());
+		}
+	}
+
+	if (endFound == false)
+		currVertex = tempVect[0].getEnd();
+	if (startFound == false)
+		currVertex = tempVect[0].getStart();
 }
 
 /** Looks at the current Minimal Spanning Tree, and retrieves a listing of all of the
