@@ -54,7 +54,7 @@ private:
 
 	//Private member functions
 	void applyPrim();
-	localOrderedEdges getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex);
+	bool getOrderedUnvisitedEdges(Vertex<LabelType> currVertex, Vector<PrimEdge<LabelType>> &tempVect);
 	void selectionSort(vector<PrimEdge<LabelType>> &array);
 	bool notConnected(LabelType &end1, LabelType &end2);
 
@@ -162,16 +162,52 @@ void Prim<LabelType>::applyPrim()
 	Vertex<LabelType> firstVertex = orderedEdges[0].getStart();		//Grab the starting vertex of the first orderedEdge
 	currVertex = firstVertex;
 	visitedVertexVect.push_back(firstVertex);
-	LinkedStack vertexStack; 
+	LinkedStack<Vertex<LabelType>> vertexStack;
 
-	for (int i = 0; i < numEdges && edgeCount < numberOfVertices - 1; ++i)
+	for (int i = 0; i < numEdges && edgeCount < numberOfVertices - 1; ++i, edgeCount++)
 	{
-		tempVect = getLocalUnvisitedNeighbors(currVertex, found);	//Returns the localOrderedEdges connected to the current vertex
 		vertexStack.push(currVertex);
+		found = getOrderedUnvisitedEdges(currVertex, tempVect);	//Returns the localOrderedEdges connected to the current vertex
+		if (found)	//If found is true, this means we were able to find adjacent vertices to the currVertex 
+		{
+			minSpanTree.push_back(tempVect[0]);
+			//If statement to check if vertex is the same as start vertex by checking to see if data are the same, assuming unique datum
+			// Turn this into a function
+			if (currVertex.getLabel() == tempVect[0].getStart())
+			{
+				currVertex = vertices.getItem(tempVect[0].getEnd());
+			}
+			else
+			{
+				currVertex = vertices.getItem(tempVect[0].getStart());
+			}
+			tempVect.pop(0);
+		}
+		else //We're at a leaf vertex
+		{
+			vertexStack.pop();
+			currVertex = vertexStack.peek();
+			getLocalUnvisitedNeighbors(currVertex, tempVect);
+			minSpanTree.push_back(tempVect[0]);
+
+			if (currVertex.getLabel() == tempVect[0].getStart())
+			{
+				currVertex = vertices.getItem(tempVect[0].getEnd());
+			}
+			else
+			{
+				currVertex = vertices.getItem(tempVect[0].getStart());
+			}
+			tempVect.pop(0);
+
+		}
+		found = false;
+		visitedVertexVect.push_back(currVertex);
 	}
 
-
-
+	//Clear memory
+	tempVect.clear();
+	delete tempVect; 
 
 }
 
@@ -184,10 +220,33 @@ where v is a visited vertex and u is an unvisited vertex
 - Luke
 */
 template <class LabelType>
-localOrderedEdges Prim<LabelType>::getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex, bool & found)
+bool Prim<LabelType>::getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex, Vector<PrimEdge<LabelType>> &tempVect)
 {
+	bool status = false; 
+	//Will be set to whatever tempVect is
+	//Find currVertex's neighbors
+	for(int i = 0; i < orderedEdges.size(); i++)
+	{
+		if ( (currVertx.getLabel() == orderedEdges.at(i).getStart() || currVertx.getLabel() == orderedEdges.at(i).getEnd())
+			&& orderedEdges.at(i).isChecked() == false)
+		{
+			tempVect.push_back(orderedEdge.at(i));
+			orderedEdge.at(i).setChecked(true);
+			status = true;
+		}
+	}
+	selectionSort(tempVect);
+	return status;
+				
+	//For loop to find the edge that we want and push onto tempVect
+		//In for loop: Update edge to having been checked in orderedEdges
 
+	//Find the list of edges adjacent to the currVertex
+
+	//Call selectionSort(localVect)
+	//Return true if was able push onto tempVect
 }
+
 /** Uses the selection sort algortihm to sort localOrderedEdges in ascending order, defined above.
 @param array - The unsorted localOrdredEdges, will pass by reference as we sort
 - Luke : "I'm adding these fcns to try out, as they seem to be needed in applyPrim()" 
