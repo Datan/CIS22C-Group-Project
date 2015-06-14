@@ -5,6 +5,7 @@
 #include <string>
 #include "LinkedGraph.h"
 #include "LoopingMenu.h"
+
 using namespace std;
 
 typedef function<void()> my_func;
@@ -13,13 +14,21 @@ const string strMainMenu = "Main Menu.txt";
 const string strModifyMenu = "Modify Menu.txt";
 const string strDisplayMenu = "Display Menu.txt";
 
-vector<string> testGlobalMenu{"Global Test Header", "Use function 1", "Use function 2", "Use function 3", "Exit Menu"};
+vector<string> testGlobalMenu{"Global Test Header", "Use function 1", "Use function 2", "Use function 3", "Exit Menu"};	// Can't make it const without changing the parameters for the Menu classes
 
+void pause(){
+	cout << "Press <ENTER> to continue" << endl;
+	cin.clear();
+	cin.ignore(1, '\n');
+}
 void display(string& anItem)
 {
    cout << "Displaying item - " << anItem << endl;
 }
+void visitAddToVector(string & anItem)
+{
 
+}
 void graphTest(LinkedGraph<string>* testGraph)
 {
    string A("A");
@@ -86,19 +95,16 @@ void readFileIntoGraph(LinkedGraph<string>* graph, ifstream &inFile)
 		inFile.seekg(0, std::ios::beg);
 	}
 	string strTemp;
-	vector<string> vertexVect;
 	while (strTemp != "BREAK")
-	{
 		inFile >> strTemp;
-		vertexVect.push_back(strTemp);
-	}
 	string strStart, strEnd;
-	double dWeight;
-	int iWeight;
-	while (inFile >> dWeight >> strStart >> strTemp >> strEnd)
+	char cTemp;
+	float dWeight;
+//	int iWeight;
+	while (inFile >> dWeight >> strStart >> cTemp >> strEnd)
 	{
-		iWeight = static_cast<int> (dWeight * 100);
-		graph->add(strStart, strEnd, iWeight);
+//		iWeight = static_cast<int> (dWeight * 100);
+		graph->add(strStart, strEnd, dWeight);
 	}
 }
 
@@ -124,29 +130,56 @@ void menuTester()
 //	functions.push_back(function4);
 
 
-	Menu* testMenu = new LoopingMenu(strVec, functions);
+	Menu* testMenu = new Menu(strVec, functions);
 	testMenu->runMenu();
-	system("pause");
+	pause();
 
 	testMenu->clear();
 	testMenu->setMenu(testGlobalMenu, functions);
 	testMenu->runMenu();
-	system("pause");
+	pause();
 
 	testMenu->clear();
 	testMenu->setMenu("Test Menu.txt", functions);
 	testMenu->runMenu();
-	system("pause");
+	pause();
 }
 int main()
 {
-	Menu* mainMenu;
-	Menu* modifyMenu;
-	Menu* displayMenu;
 
-	mainMenu = new LoopingMenu;
-	modifyMenu = new LoopingMenu;
-	displayMenu = new LoopingMenu;
+	LoopingMenu debugMenu;
+	vector<string> strDebugMenu{
+		"Debug/Testing Menu", "Test file reading", "Option 2", "Option 3"
+	};
+	vector<my_func> debugMenuFunctions{
+		[]()	// Debug menu option 1
+		{
+			cout << "Testing reading a file into a graph" << endl;
+			ifstream inFile;
+
+			if (openInputFile(inFile))
+			{
+				LinkedGraph<string>* graph = new LinkedGraph < string > ;
+				readFileIntoGraph(graph, inFile);
+				cout << "Testing breadthFirstTraversal" << endl;
+				graph->breadthFirstTraversal("2227.83.27.247", display);
+				pause();
+				cout << "Testing deapthFirstTraversal" << endl;
+				graph->depthFirstTraversal("2227.83.27.247", display);
+				pause();
+			}
+			else
+				return;
+		},	// End debug menu option 1
+		[](){cout << "In debug menu option 2" << endl; },		// Debug menu option 2
+		[](){cout << "In debug menu option 3" << endl; }		// Debug menu option 3
+	};
+	debugMenu.setMenu(strDebugMenu, debugMenuFunctions);
+	debugMenu.runMenu();
+
+	LoopingMenu mainMenu;
+	LoopingMenu modifyMenu;
+	LoopingMenu displayMenu;
 
 	// Vectors of lambdas (essentially really cool in line functions) to use for the menus
 	// Can use vector<my_func> instead of vector<function<void()>>
@@ -166,18 +199,19 @@ int main()
 		[](){ cout << "In display menu option 4" << endl; }		// Display menu option 4
 	};
 	vector<my_func> mainMenuFunctions{
-		[]() { cout << "In Main Menu option 1" << endl; },		// Main menu option 1
-		[&](){ cout << "In Main Menu option 2" << endl; modifyMenu->runMenu(); },	// Main menu option 2
-		[&](){ cout << "In Main Menu option 3" << endl; displayMenu->runMenu(); },	// Main menu option 3
+		[]() { cout << "In Main Menu option 1" << endl; ifstream ifs; openInputFile(ifs); },		// Main menu option 1
+		[&](){ cout << "In Main Menu option 2" << endl; modifyMenu.runMenu(); },	// Main menu option 2
+		[&](){ cout << "In Main Menu option 3" << endl; displayMenu.runMenu(); },	// Main menu option 3
 		[](){ cout << "In Main Menu option 4" << endl; },		// Main menu option 4
-		[](){ cout << "In Main Menu option 5" << endl; }		// Main menu option 5
+		[](){cout << "In Main Menu option 5" << endl; },		// Main menu option 5
+		[](){ cout << "In Main Menu option 6" << endl; }		// Main menu option 6
 	};
 
-	mainMenu->setMenu(strMainMenu, mainMenuFunctions);
-	modifyMenu->setMenu(strModifyMenu, modifyMenuFunctions);
-	displayMenu->setMenu(strDisplayMenu, displayMenuFunctions);
+	mainMenu.setMenu(strMainMenu, mainMenuFunctions);
+	modifyMenu.setMenu(strModifyMenu, modifyMenuFunctions);
+	displayMenu.setMenu(strDisplayMenu, displayMenuFunctions);
 
-	mainMenu->runMenu();
+	mainMenu.runMenu();
 	
 	/*
 	
@@ -188,12 +222,9 @@ int main()
 
 	//menuTester();
 
-	delete mainMenu;
-	delete modifyMenu;
-	delete displayMenu;
 
 	cout << endl << "End of program" << endl;
-	system("pause");
+	pause();
 	return 0;
 }  // end main
 

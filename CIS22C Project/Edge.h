@@ -16,33 +16,30 @@ class Edge
 {
 private:
    LabelType endVertex; // Cannot be changed as doing so changes the edge
-   int       edgeWeight;
+   float       edgeWeight;
 
 public:
    Edge();
    Edge(const LabelType& end);
-   Edge(const LabelType& end, int weight);
+   Edge(const LabelType& end, float weight);
 
    LabelType getEndVertex() const;
-   int getWeight() const;
-   void setWeight(const int newWeight);
+   float getWeight() const;
+   void setWeight(const float newWeight);
 }; // end Edge
 
 template<class LabelType>
-Edge<LabelType>::
-Edge(): endVertex(LabelType()), edgeWeight(0)
+Edge<LabelType>::Edge(): endVertex(LabelType()), edgeWeight(0)
 {
 }  // end default constructor
 
 template<class LabelType>
-Edge<LabelType>::
-Edge(const LabelType& end): endVertex(end), edgeWeight(0)
+Edge<LabelType>::Edge(const LabelType& end): endVertex(end), edgeWeight(0)
 {
 }  // end constructor
 
 template<class LabelType>
-Edge<LabelType>::
-Edge(const LabelType& end, int weight): endVertex(end), edgeWeight(weight)
+Edge<LabelType>::Edge(const LabelType& end, float weight) : endVertex(end), edgeWeight(weight)
 {
 }  // end constructor
 
@@ -53,13 +50,13 @@ LabelType Edge<LabelType>::getEndVertex() const
 }  // end getEndVertex
 
 template<class LabelType>
-int Edge<LabelType>::getWeight() const
+float Edge<LabelType>::getWeight() const
 {
    return edgeWeight;
 }  // end getWeight
 
 template<class LabelType>
-void Edge<LabelType>::setWeight(const int newWeight)
+void Edge<LabelType>::setWeight(const float newWeight)
 {
    edgeWeight = newWeight;;
 }  // end setWeight

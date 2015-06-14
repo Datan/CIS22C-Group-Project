@@ -4,7 +4,6 @@
 #include <fstream>
 #include <vector>
 #include "LinkedGraph.h"
-#include "BinarySearchTree.h"
 #include "Vertex.h"
 #include "Edge.h"
 #include "LinkedStack.h"

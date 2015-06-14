@@ -36,24 +36,24 @@ LinkedStack<ItemType>::LinkedStack(const LinkedStack<ItemType>& aStack)
 
    count = aStack.count;
    if (origChainPtr == 0)
-      topPtr = 0;
+	  topPtr = 0;
    else
    {
-      topPtr = new Node<ItemType>();				// copy top item
-      topPtr->setItem(origChainPtr->getItem());
+	  topPtr = new Node<ItemType>();				// copy top item
+	  topPtr->setItem(origChainPtr->getItem());
 
-      Node<ItemType>* newChainPtr = topPtr;			// new chain starts at top
-      origChainPtr = origChainPtr->getNext();		// start with next item in original chain
+	  Node<ItemType>* newChainPtr = topPtr;			// new chain starts at top
+	  origChainPtr = origChainPtr->getNext();		// start with next item in original chain
 
-      while (origChainPtr != 0)						// copy rest of list
-      {
-         ItemType nextItem = origChainPtr->getItem();
-         Node<ItemType>* newNodePtr = new Node<ItemType>(nextItem);	// create new node
-         newChainPtr->setNext(newNodePtr);							// add new node to list
-         newChainPtr = newChainPtr->getNext();						// walk to next item
-         origChainPtr = origChainPtr->getNext();
-      }
-      newChainPtr->setNext(0);						// set end of list
+	  while (origChainPtr != 0)						// copy rest of list
+	  {
+		 ItemType nextItem = origChainPtr->getItem();
+		 Node<ItemType>* newNodePtr = new Node<ItemType>(nextItem);	// create new node
+		 newChainPtr->setNext(newNodePtr);							// add new node to list
+		 newChainPtr = newChainPtr->getNext();						// walk to next item
+		 origChainPtr = origChainPtr->getNext();
+	  }
+	  newChainPtr->setNext(0);						// set end of list
    }
 }
 

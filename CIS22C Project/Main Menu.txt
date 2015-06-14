@@ -3,4 +3,5 @@ Set input file
 Modify graph data
 Display graph data
 Solve minimum spanning tree
+Info and help
 Exit Program
