@@ -5,6 +5,8 @@
 #include <string>
 #include "LinkedGraph.h"
 #include "LoopingMenu.h"
+#include "Prim.h"
+//#include "Prim.h"
 
 using namespace std;
 
@@ -28,6 +30,15 @@ void display(string& anItem)
 void visitAddToVector(string & anItem)
 {
 
+}
+void AddEdge()
+{
+	// Display a list of all vertices
+		// Let user choose one vertex
+	// Display a list of all vertices excluding the chosen one
+		// Let user choose one vertex
+	// User enters a weight for the new edge between vertices
+	// Call Prim add function
 }
 void graphTest(LinkedGraph<string>* testGraph)
 {
@@ -149,7 +160,7 @@ int main()
 
 	LoopingMenu debugMenu;
 	vector<string> strDebugMenu{
-		"Debug/Testing Menu", "Test file reading", "Option 2", "Option 3"
+		"Debug/Testing Menu", "Test file reading", "Run graph test", "Option 3"
 	};
 	vector<my_func> debugMenuFunctions{
 		[]()	// Debug menu option 1
@@ -159,7 +170,7 @@ int main()
 
 			if (openInputFile(inFile))
 			{
-				LinkedGraph<string>* graph = new LinkedGraph < string > ;
+				LinkedGraph<string>* graph = new Prim< string > ;
 				readFileIntoGraph(graph, inFile);
 				cout << "Testing breadthFirstTraversal" << endl;
 				graph->breadthFirstTraversal("2227.83.27.247", display);
@@ -171,7 +182,13 @@ int main()
 			else
 				return;
 		},	// End debug menu option 1
-		[](){cout << "In debug menu option 2" << endl; },		// Debug menu option 2
+		[](){
+		//	cout << "In debug menu option 2" << endl;
+			LinkedGraph<string>* graph = new Prim< string >;
+			cout << "Running graph test" << endl;
+			graphTest(graph);
+			pause();
+		},		// Debug menu option 2
 		[](){cout << "In debug menu option 3" << endl; }		// Debug menu option 3
 	};
 	debugMenu.setMenu(strDebugMenu, debugMenuFunctions);

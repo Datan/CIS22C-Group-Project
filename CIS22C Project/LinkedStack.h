@@ -20,7 +20,7 @@ public:
 	LinkedStack() {topPtr = 0; count = 0;}
 	LinkedStack(const LinkedStack<ItemType>& aStack);
 	virtual ~LinkedStack() {while (topPtr!=0) {pop();} }
-
+	int size() const { return count; }
 	bool isEmpty() const {return (topPtr == 0);}
 	bool push(const ItemType& newItem);
 	bool pop();

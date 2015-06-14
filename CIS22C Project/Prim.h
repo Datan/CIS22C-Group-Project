@@ -54,20 +54,22 @@ private:
 
 	//Private member functions
 	void applyPrim();
-	bool getOrderedUnvisitedEdges(Vertex<LabelType> currVertex, Vector<PrimEdge<LabelType>> &tempVect);
+	bool getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex, vector<PrimEdge<LabelType>> &tempVect);
 	void selectionSort(vector<PrimEdge<LabelType>> &array);
 	bool notConnected(LabelType &end1, LabelType &end2);
+	void writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect);
+	void writeLocalOrderedEdges(ostream &os);
 
 	//	bool disconnectVisitedVertex(Vertex<LabelType>& visitedVertex);
 
 public:
-	Prim();
-	~Prim();
+//	Prim(){}
+//	~Prim(){}
 	void createMinSpanTree();
 	void writeMinSpanTree(ostream &os);
 	void writeOrderedEdges(ostream &os); // for debugging
 	bool undo();
-	bool add(LabelType start, LabelType end, int edgeWeight = 0)
+	bool add(LabelType start, LabelType end, float edgeWeight = 0)
 	{
 		if (LinkedGraph<LabelType>::add(start, end, edgeWeight))
 		{
@@ -220,7 +222,7 @@ where v is a visited vertex and u is an unvisited vertex
 - Luke
 */
 template <class LabelType>
-bool Prim<LabelType>::getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex, Vector<PrimEdge<LabelType>> &tempVect)
+bool Prim<LabelType>::getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex, vector<PrimEdge<LabelType>> &tempVect)
 {
 	bool status = false;
 	//Will be set to whatever tempVect is

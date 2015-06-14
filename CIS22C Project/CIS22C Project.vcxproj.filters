@@ -51,6 +51,9 @@
     <ClInclude Include="Prim.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LoopingMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +62,18 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Test Input File.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Display Menu.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Main Menu.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Modify Menu.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Test Menu.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
