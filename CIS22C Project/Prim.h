@@ -44,7 +44,7 @@ private:
 	//Private member variables
 	LinkedStack<PrimEdge<LabelType>> undoStack;
 	vector<PrimEdge<LabelType>> minSpanTree;
-	vector<PrimEdge<LabelType>> orderedEdges;	//Probably not what we want for Prim - Luke
+	vector<PrimEdge<LabelType>> orderedEdges;	//Probably should rename, since the edges of the graph we are given are not ordered... - Luke
 
 	/* Most likely will use this in applyPrims, which are the neighbor edges of visited vertices
 	because unlike Kruskal, Prim does not know the ordering of all the edges to begin with
@@ -54,8 +54,8 @@ private:
 
 	//Private member functions
 	void applyPrim();
-	localOrderedEdges getLocalUnvisitedNeighbors(vector <Vertex<LabelType>> visitedVertices);
-	void selectionSort(vector<PrimEdge<LabelType>> &array, int size);
+	localOrderedEdges getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex);
+	void selectionSort(vector<PrimEdge<LabelType>> &array);
 	bool notConnected(LabelType &end1, LabelType &end2);
 
 //	bool disconnectVisitedVertex(Vertex<LabelType>& visitedVertex);
@@ -146,29 +146,73 @@ void Prim<LabelType>::createMinSpanTree()
 template <class LabelType>
 void Prim<LabelType>::applyPrim()
 {
+	//Start prepping the graph for traversal.
+	if (minSpanTree.size() > 0)		//Should be starting with a fresh minimum spanning tree; if not, reset it.
+	{
+		minSpanTree.clear();
+	}
+	this->unvisitVertices();			// Reset this graph. Uses this-> since it is a fcn of base class LinkedGraph.h
+
+	Vertex<LabelType> currVertex; 
+	vector<Vertex<LabelType>> visitedVertexVect;
+	bool found = false;
+	int numEdges = orderedEdges.size();
+	int edgeCount = 0;
+
+	Vertex<LabelType> firstVertex = orderedEdges[0].getStart();		//Grab the starting vertex of the first orderedEdge
+	currVertex = firstVertex;
+	visitedVertexVect.push_back(firstVertex);
+	LinkedStack vertexStack; 
+
+	for (int i = 0; i < numEdges && edgeCount < numberOfVertices - 1; ++i)
+	{
+		tempVect = getLocalUnvisitedNeighbors(currVertex, found);	//Returns the localOrderedEdges connected to the current vertex
+		vertexStack.push(currVertex);
+	}
+
+
+
 
 }
 
 /** Looks at the current Minimal Spanning Tree, and retrieves a listing of all of the
 unvisited neighbor vertices and sorts them in order to find the least - cost edge (v,u)
 where v is a visited vertex and u is an unvisited vertex
-@param visitedVertices - A vector of the vertices which have currently been visited at that point in time within applyPrim()
-@return localOrderedEdges - defined in private member variables
+@param currVertex - A vertex that has currently been visited at that point in time within applyPrim()
+@param found - A boolean passed by reference that indicates whether was able to find existing neighboring edges connected to curreVertex
+@return localOrderedEdges - defined in private member variables as a vector<PrimEdge<LabelType>>
 - Luke
 */
 template <class LabelType>
-localOrderedEdges Prim<LabelType>::getLocalUnvisitedNeighbors(vector <Vertex<LabelType>> visitedVertices)
+localOrderedEdges Prim<LabelType>::getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex, bool & found)
 {
 
 }
-/** Uses the selection sort algortihm to sort localOrderedEdges, defined above. 
+/** Uses the selection sort algortihm to sort localOrderedEdges in ascending order, defined above.
 @param array - The unsorted localOrdredEdges, will pass by reference as we sort
-- Luke : "I'm adding these fcns to try out, as they seem to be needed in applyPrim()"
+- Luke : "I'm adding these fcns to try out, as they seem to be needed in applyPrim()" 
+Algorithm pulled off of "http://cncpp.divilabs.com/2013/12/c-program-code-for-selection-sort.html"
 */
 template <class LabelType>
-void Prim<LabelType>::selectionSort(vector<PrimEdge<LabelType>> &array, int size)
+void Prim<LabelType>::selectionSort(vector<PrimEdge<LabelType>> &array)
 {
+	PrimEdge<LabelType> temp;
+	int size = array.size(); 
 
+	for (int i = 0; i < size ; i++)
+	{
+		for (int j = i + 1; j < size; j++)	
+		{
+			if (array[j].getWeight() < array[i].getWeight())
+			{	
+				temp = array[i];
+				array[i] = array[j];
+				array[j] = temp;
+			}
+		}
+	}
+
+	return;
 }
 
 /**  Checks if end1 vertex is already connected to end2 vertex in the minimum spanning tree so far
@@ -214,5 +258,5 @@ void Prim<LabelType>::writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect
 			<< " with weight = " << edge.getWeight() << endl;
 	}
 }
-
+// End of function definitions to print out things
 
