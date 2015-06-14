@@ -163,11 +163,11 @@ void Prim<LabelType>::applyPrim()
 	LabelType firstVertex = orderedEdges[0].getStart();		//Grab the starting vertex of the first orderedEdge
 	LabelType currVertex = firstVertex;		// Change to label type, change all uses to not be a vertex
 	visitedVertexVect.push_back(firstVertex);
-	LinkedStack<LabelType> vertexStack;		// Change to label type, change all uses to not be a vertex
+	//LinkedStack<LabelType> vertexStack;		// We don't need the vertexStack to go back
 
 	for (int i = 0; i < numEdges && edgeCount < numberOfVertices - 1; ++i, edgeCount++)
 	{
-		vertexStack.push(currVertex);
+		//vertexStack.push(currVertex); // We don't need the vertexStack to go back
 		found = getLocalUnvisitedNeighbors(currVertex, tempVect);	//Returns the localOrderedEdges connected to the current vertex
 		if (found)	//If found is true, this means we were able to find adjacent vertices to the currVertex 
 		{
@@ -186,19 +186,49 @@ void Prim<LabelType>::applyPrim()
 		}
 		else //We're at a leaf vertex
 		{
-			vertexStack.pop();
-			currVertex = vertexStack.peek();
-			getLocalUnvisitedNeighbors(currVertex, tempVect);
-			minSpanTree.push_back(tempVect[0]);
+			//vertexStack.pop();
+			//currVertex = vertexStack.peek();
+			//getLocalUnvisitedNeighbors(currVertex, tempVect);
+			/*Explain algorithm:
+			When getLocalUnvisitedNeighbors cannot find any edges for current vertex, we continue to choose the lowest weight edges in
+			tempVect. Then, we trace in visitedVertexVect list which end of the Edge contains the unvisited Vertex. As we know edge has
+			start vertex and end vertex, tempVect[0] guarantees that one end will be visited and one will be unvisited. We just need to 
+			loop through the visitedVertexVect, find which end of the edges hasn't visited yet then assign it to current vertex.
 
-			if (currVertex == tempVect[0].getStart())
+			Explain why vertexStack not working properly:
+			For example: Use the graph on Catalist as example but let imagine a - b - 3 (change from a - b - 6) and we are at node h
+			tempVect has:
+			a - b - 3
+			d - c - 4
+			e - g - 8
+
+			Current Vertex = h
+			VisitedVertexVect = a, i, f, g, d, h
+			Stack: a, f, g, d, h
+
+			h has no edge --> Pop h out --> assign d to current vertex
+			Current Vertex = d
+			Then what the code does now. It will choose a - b - 3 because it is the lowest weight edge.
+
+			Then how can we choose the current vertex?
+			In our previous code we assign current vertex by look at the edges and if the Start of edge is not equal to current vertex,
+			set End of edge to current vertex.
+			d != a --> currVertex = a;
+			currentVertex = a
+			tempVect has:
+			d - c - 4
+			e - g - 8
+			If we put a to getLocalUnvisitedNeighbors, it definitely return false and our new edge will be (d - c - 4) which is not
+			always right. We have added a new vertex b but we don't add the edges of that vertex into the tempVect.
+			*/
+			for (int j = 0; j < .size(); j++)
 			{
-				currVertex = tempVect[0].getEnd();
+				if (tempVect[0].getEnd() != visitedVertexVect.at(j))
+					currVertex = tempVect[0].getEnd();
+				if (tempVect[0].getStart() != visitedVertexVect.at(j))
+					currVertex = tempVect[0].getStart();
 			}
-			else
-			{
-				currVertex = tempVect[0].getStart();
-			}
+			minSpanTree.push_back(tempVect[0]);
 			tempVect.erase(tempVect.begin());
 
 		}
