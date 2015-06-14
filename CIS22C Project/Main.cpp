@@ -57,14 +57,35 @@ void primTest(Prim<string>* graph)
 	cout << "Vertices :" << graph->getNumVertices() << endl;
 	cout << "Edges :" << graph->getNumEdges() << endl;
 
-	cout << "\nDepth-first traversal (should be A B E F J C G K L D H M I N):" << endl;
+	cout << "\nDepth-first traversal" << endl;		//  (should be A B E F J C G K L D H M I N):
 	graph->depthFirstTraversal("a", display);
 
-	cout << "\nBreadth-first traversal (should be A B C D E F G H I J K L M N):" << endl;
+	cout << "\nBreadth-first traversal" << endl;	//  (should be A B C D E F G H I J K L M N):
 	graph->breadthFirstTraversal("a", display);
 
+	pause();
+	cout << "Creating Minimum Spanning Tree" << endl;
 	graph->createMinSpanTree();
+	cout << "Displaying Minimum Spanning Tree" << endl;
 	graph->writeMinSpanTree(cout);
+}
+void primFileTest(Prim<string>* graph)
+{
+	cout << "Vertices :" << graph->getNumVertices() << endl;
+	cout << "Edges :" << graph->getNumEdges() << endl;
+
+	cout << "\nDepth-first traversal" << endl;		//  (should be A B E F J C G K L D H M I N):
+	graph->depthFirstTraversal("2227.83.27.247", display);
+
+	cout << "\nBreadth-first traversal" << endl;	//  (should be A B C D E F G H I J K L M N):
+	graph->breadthFirstTraversal("2227.83.27.247", display);
+
+	pause();
+	cout << "Creating Minimum Spanning Tree" << endl;
+	graph->createMinSpanTree();
+	cout << "Displaying Minimum Spanning Tree" << endl;
+	graph->writeMinSpanTree(cout);
+	pause();
 }
 void graphTest(LinkedGraph<string>* testGraph)
 {
@@ -101,10 +122,10 @@ void graphTest(LinkedGraph<string>* testGraph)
    cout << "Vertices :" << testGraph->getNumVertices() << endl;
    cout << "Edges :" << testGraph->getNumEdges() << endl;
   
-   cout << "\nDepth-first traversal (should be A B E F J C G K L D H M I N):" << endl;
+   cout << "\nDepth-first traversal" << endl;	//  (should be A B E F J C G K L D H M I N):
    testGraph->depthFirstTraversal(A, display);
   
-   cout << "\nBreadth-first traversal (should be A B C D E F G H I J K L M N):" << endl;
+   cout << "\nBreadth-first traversal" << endl;	//  (should be A B C D E F G H I J K L M N):
    testGraph->breadthFirstTraversal(A, display);
 }  // end graphTest
 
@@ -122,7 +143,7 @@ bool openInputFile(ifstream &ifs)
 	return ifs.is_open();
 }
 
-void readFileIntoGraph(LinkedGraph<string>* graph, ifstream &inFile)
+void readFileIntoGraph(Prim<string>* graph, ifstream &inFile)
 {
 	if (!inFile || !inFile.is_open())
 		return;
@@ -186,7 +207,7 @@ int main()
 
 	LoopingMenu debugMenu;
 	vector<string> strDebugMenu{
-		"Debug/Testing Menu", "Test file reading", "Run graph test", "Option 3"
+		"Debug/Testing Menu", "Test file reading", "Run Prim graph test", "Read from file and test", "Exit Menu"
 	};
 	vector<my_func> debugMenuFunctions{
 		[]()	// Debug menu option 1
@@ -196,7 +217,7 @@ int main()
 
 			if (openInputFile(inFile))
 			{
-				LinkedGraph<string>* graph = new Prim< string > ;
+				Prim<string>* graph = new Prim< string > ;
 				readFileIntoGraph(graph, inFile);
 				cout << "Testing breadthFirstTraversal" << endl;
 				graph->breadthFirstTraversal("2227.83.27.247", display);
@@ -210,12 +231,26 @@ int main()
 		},	// End debug menu option 1
 		[](){
 		//	cout << "In debug menu option 2" << endl;
-			LinkedGraph<string>* graph = new Prim< string >;
+			Prim<string>* graph = new Prim< string >;
 			cout << "Running graph test" << endl;
-			graphTest(graph);
+			primTest(graph);
 			pause();
 		},		// Debug menu option 2
-		[](){cout << "In debug menu option 3" << endl; }		// Debug menu option 3
+		[](){
+			cout << "Reading a file into a graph" << endl;
+			ifstream inFile;
+
+			if (openInputFile(inFile))
+			{
+				Prim<string>* graph = new Prim< string >;
+				readFileIntoGraph(graph, inFile);
+				cout << "Running graph test" << endl;
+				primFileTest(graph);
+			}
+			else
+				return;
+		},		// Debug menu option 3
+		[](){cout << "In debug menu option 4" << endl; }		// Debug menu option 3
 	};
 	debugMenu.setMenu(strDebugMenu, debugMenuFunctions);
 	debugMenu.runMenu();

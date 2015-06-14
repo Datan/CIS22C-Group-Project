@@ -29,7 +29,7 @@ class Prim : public LinkedGraph < LabelType >
 		void setChecked(bool value){ checked = value; }
 		LabelType getStart()const { return startLabel; }
 		LabelType getEnd() const { return edge.getEndVertex(); }
-		int getWeight() const { return edge.getWeight(); }
+		float getWeight() const { return edge.getWeight(); }
 		bool isChecked() const { return checked; }
 
 		bool operator<(const PrimEdge &right)
@@ -43,7 +43,7 @@ class Prim : public LinkedGraph < LabelType >
 private:
 	//Private member variables
 	LinkedStack<PrimEdge<LabelType>> undoStack;
-	vector<PrimEdge<LabelType>> minSpanTree;
+	vector<PrimEdge<LabelType>> minSpanTree;	
 	vector<PrimEdge<LabelType>> orderedEdges;	//Probably should rename, since the edges of the graph we are given are not ordered... - Luke
 
 	/* Most likely will use this in applyPrims, which are the neighbor edges of visited vertices
@@ -54,7 +54,7 @@ private:
 
 	//Private member functions
 	void applyPrim();
-	bool getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex, vector<PrimEdge<LabelType>> &tempVect);
+	bool getLocalUnvisitedNeighbors(LabelType currVertex, vector<PrimEdge<LabelType>> &tempVect);
 	void selectionSort(vector<PrimEdge<LabelType>> &array);
 	bool notConnected(LabelType &end1, LabelType &end2);
 	void writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect);
@@ -154,36 +154,35 @@ void Prim<LabelType>::applyPrim()
 		minSpanTree.clear();
 	}
 	this->unvisitVertices();			// Reset this graph. Uses this-> since it is a fcn of base class LinkedGraph.h
-
-	Vertex<LabelType> currVertex;
-	vector<Vertex<LabelType>> visitedVertexVect;
+	vector<PrimEdge<LabelType>> tempVect;
+	vector<LabelType> visitedVertexVect;	// Change to label type, change all uses to not be a vertex
 	bool found = false;
 	int numEdges = orderedEdges.size();
 	int edgeCount = 0;
 
-	Vertex<LabelType> firstVertex = orderedEdges[0].getStart();		//Grab the starting vertex of the first orderedEdge
-	currVertex = firstVertex;
+	LabelType firstVertex = orderedEdges[0].getStart();		//Grab the starting vertex of the first orderedEdge
+	LabelType currVertex = firstVertex;		// Change to label type, change all uses to not be a vertex
 	visitedVertexVect.push_back(firstVertex);
-	LinkedStack<Vertex<LabelType>> vertexStack;
+	LinkedStack<LabelType> vertexStack;		// Change to label type, change all uses to not be a vertex
 
 	for (int i = 0; i < numEdges && edgeCount < numberOfVertices - 1; ++i, edgeCount++)
 	{
 		vertexStack.push(currVertex);
-		found = getOrderedUnvisitedEdges(currVertex, tempVect);	//Returns the localOrderedEdges connected to the current vertex
+		found = getLocalUnvisitedNeighbors(currVertex, tempVect);	//Returns the localOrderedEdges connected to the current vertex
 		if (found)	//If found is true, this means we were able to find adjacent vertices to the currVertex 
 		{
 			minSpanTree.push_back(tempVect[0]);
 			//If statement to check if vertex is the same as start vertex by checking to see if data are the same, assuming unique datum
 			// Turn this into a function
-			if (currVertex.getLabel() == tempVect[0].getStart())
+			if (currVertex == tempVect[0].getStart())
 			{
-				currVertex = vertices.getItem(tempVect[0].getEnd());
+				currVertex = tempVect[0].getEnd();
 			}
 			else
 			{
-				currVertex = vertices.getItem(tempVect[0].getStart());
+				currVertex = tempVect[0].getStart();
 			}
-			tempVect.pop(0);
+			tempVect.erase(tempVect.begin());
 		}
 		else //We're at a leaf vertex
 		{
@@ -192,15 +191,15 @@ void Prim<LabelType>::applyPrim()
 			getLocalUnvisitedNeighbors(currVertex, tempVect);
 			minSpanTree.push_back(tempVect[0]);
 
-			if (currVertex.getLabel() == tempVect[0].getStart())
+			if (currVertex == tempVect[0].getStart())
 			{
-				currVertex = vertices.getItem(tempVect[0].getEnd());
+				currVertex = tempVect[0].getEnd();
 			}
 			else
 			{
-				currVertex = vertices.getItem(tempVect[0].getStart());
+				currVertex = tempVect[0].getStart();
 			}
-			tempVect.pop(0);
+			tempVect.erase(tempVect.begin());
 
 		}
 		found = false;
@@ -209,8 +208,6 @@ void Prim<LabelType>::applyPrim()
 
 	//Clear memory
 	tempVect.clear();
-	delete tempVect;
-
 }
 
 /** Looks at the current Minimal Spanning Tree, and retrieves a listing of all of the
@@ -222,18 +219,18 @@ where v is a visited vertex and u is an unvisited vertex
 - Luke
 */
 template <class LabelType>
-bool Prim<LabelType>::getLocalUnvisitedNeighbors(Vertex<LabelType> currVertex, vector<PrimEdge<LabelType>> &tempVect)
+bool Prim<LabelType>::getLocalUnvisitedNeighbors(LabelType currVertex, vector<PrimEdge<LabelType>> &tempVect)
 {
 	bool status = false;
 	//Will be set to whatever tempVect is
 	//Find currVertex's neighbors
-	for (int i = 0; i < orderedEdges.size(); i++)
+	for (unsigned int i = 0; i < orderedEdges.size(); i++)
 	{
-		if ((currVertx.getLabel() == orderedEdges.at(i).getStart() || currVertx.getLabel() == orderedEdges.at(i).getEnd())
+		if ((currVertex == orderedEdges.at(i).getStart() || currVertex == orderedEdges.at(i).getEnd())
 			&& orderedEdges.at(i).isChecked() == false)
 		{
-			tempVect.push_back(orderedEdge.at(i));
-			orderedEdge.at(i).setChecked(true);
+			tempVect.push_back(orderedEdges.at(i));
+			orderedEdges.at(i).setChecked(true);
 			status = true;
 		}
 	}
@@ -314,7 +311,7 @@ void Prim<LabelType>::writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect
 {
 	int size = vect.size();
 	for (int i = 0; i < size; ++i){
-		KruskalEdge<LabelType> edge = vect[i];
+		PrimEdge<LabelType> edge = vect[i];
 		os << "From " << edge.getStart() << " to " << edge.getEnd()
 			<< " with weight = " << edge.getWeight() << endl;
 	}
