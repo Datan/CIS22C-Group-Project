@@ -26,7 +26,7 @@ public:
     @param end  A label for the second vertex.
     @param edgeWeight  The integer weight of the edge.
     @return  True if the edge is created, or false otherwise. */
-   virtual bool add(LabelType start, LabelType end, int edgeWeight) = 0;
+   virtual bool add(LabelType start, LabelType end, float edgeWeight) = 0;
    
    /** Removes an edge from this graph. If a vertex has no other edges, 
        it is removed from the graph since this is a connected graph. 
@@ -39,7 +39,7 @@ public:
    /** Gets the weight of an edge in this graph.
     @return  The weight of the specified edge. 
        If no such edge exists, returns a negative integer. */
-   virtual int getEdgeWeight(LabelType start, LabelType end) const = 0;
+   virtual float getEdgeWeight(LabelType start, LabelType end) const = 0;
    
    /** Performs a depth-first search of this graph beginning at the given
        vertex and calls a given function once for each vertex visited.

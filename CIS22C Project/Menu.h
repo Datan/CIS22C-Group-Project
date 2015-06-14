@@ -65,17 +65,6 @@ int Menu::choice(int low, int high)
 	return cI;
 }
 
-	/** Opens an input file with a given name
-		@post A file is open
-		@param &ifs Address of the ifstream object being used to open the file
-		@param fileName Name of the file to open
-		@return True if the file was successfully opened, false otherwise	*/
-bool Menu::openInputFile(ifstream & ifs, string fileName)
-{
-	ifs.open(fileName);
-	return ifs.is_open();
-}
-
 void Menu::readFile(ifstream & ifs)
 {
 	string temp;
@@ -92,7 +81,8 @@ void Menu::readFile(ifstream & ifs)
 bool Menu::setInputFile(string fileName)
 {
 	ifstream inFile;
-	if (this->openInputFile(inFile, fileName))
+	inFile.open(fileName);
+	if (inFile.is_open())
 	{
 		readFile(inFile);
 		return true;
@@ -157,13 +147,17 @@ Menu::Menu(vector<string> & fullMenu, vector<my_func> & funcs)	// Constructor
 
 void Menu::setMenu(string fileName, const vector<my_func> & funcs)
 {
-	setInputFile(fileName);
-	functions = funcs;
-		if (menuVector.size() != functions.size())	// Every menu option must have a function to go with it. If the vectors are not of equal size, then the program would run into an error
+	if (setInputFile(fileName))
 	{
-		cout << "ERROR: Not enough functions for menu options" << endl;	// Consider throwing an exception instead of displaying an error
-		return;
+		functions = funcs;
+		if (menuVector.size() != functions.size())	// Every menu option must have a function to go with it. If the vectors are not of equal size, then the program would run into an error
+		{
+			cout << "ERROR: There must be a single function for every menu option" << endl;	// Consider throwing an exception instead of displaying an error
+			return;
+		}
 	}
+	else
+		cout << "ERROR: Failed to open file" << endl;
 }
 
 void Menu::setMenu(vector<string> & fullMenu, vector<my_func> & funcs)
@@ -187,7 +181,7 @@ void Menu::runMenu()
 	system("cls");
 	displayMenu();
 	int i = this->makeChoice();	// Get the index of the menu choice, where 1 corresponds to the first choice
-
+	system("cls");
 	// Add comparison to make sure the menu choice is still within the vector indexes
 	functions[i - 1]();		// Index of function corresponding to an menu choice is 1 less than the index of the menu choice. (The function for menu choice 1 has an index of 0)
 }

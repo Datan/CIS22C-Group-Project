@@ -33,8 +33,8 @@ private:
 
 public:
    /** Creates an unvisited vertex, gives it a label, and clears its
-       adjacency list.
-       NOTE: A vertex must have a unique label that cannot be changed. */
+	   adjacency list.
+	   NOTE: A vertex must have a unique label that cannot be changed. */
    Vertex(LabelType label);
 
    /** @return  The label of this vertex. */
@@ -47,36 +47,36 @@ public:
    void unvisit();
 
    /** Returns the visited status of this vertex.
-    @return  True if the vertex has been visited, otherwise
-       returns false/ */
+	@return  True if the vertex has been visited, otherwise
+	   returns false/ */
    bool isVisited() const;
 
    /** Adds an edge between this vertex and the given vertex.
-    @return  True if the connection is successful. */
-   bool connect(const LabelType& endVertex, const int edgeWeight = 0);
+	@return  True if the connection is successful. */
+   bool connect(const LabelType& endVertex, const float edgeWeight = 0);
 
    /** Removes the edge between this vertex and the given one.
    @return  True if the removal is successful. */
    bool disconnect(const LabelType& endVertex);
 
    /** Gets the weight of the edge between this vertex and the given vertex.
-    @return  The edge weight. This value is zero for an unweighted graph and
-       is negative if the .edge does not exist */
-   int getEdgeWeight(const LabelType& endVertex) const;
+	@return  The edge weight. This value is zero for an unweighted graph and
+	   is negative if the .edge does not exist */
+   float getEdgeWeight(const LabelType& endVertex) const;
 
    /** Calculates how many neighbors this vertex has.
-    @return  The number of the vertex's neighbors. */
+	@return  The number of the vertex's neighbors. */
    int getNumberOfNeighbors() const;
 
    /** Sets current neighbor to first in adjacency list. */
    void resetNeighbor();
 
    /** Gets this vertex's next neighbor in the adjacency list.
-    @return  The label of the vertex's next neighbor. */
+	@return  The label of the vertex's next neighbor. */
    LabelType getNextNeighbor();
 
    /** Sees whether this vertex is equal to another one.
-       Two vertices are equal if they have the same label. */
+	   Two vertices are equal if they have the same label. */
    bool operator==(const Vertex<LabelType>& rightHandItem) const;
 }; // end Vertex
 
@@ -112,7 +112,7 @@ bool Vertex<LabelType>::isVisited() const
 }  // end isVisited
 
 template<class LabelType>
-bool Vertex<LabelType>::connect(const LabelType& endVertex, const int edgeWeight)
+bool Vertex<LabelType>::connect(const LabelType& endVertex, const float edgeWeight)
 {
    Edge<LabelType> thisEdge(endVertex, edgeWeight);
    return adjacencyList.add(endVertex, thisEdge);   
@@ -125,9 +125,9 @@ bool Vertex<LabelType>::disconnect(const LabelType& endVertex)
 }  // end disconnect
 
 template<class LabelType>
-int Vertex<LabelType>::getEdgeWeight(const LabelType& endVertex) const
+float Vertex<LabelType>::getEdgeWeight(const LabelType& endVertex) const
 {
-   int edgeWeight = -1;
+   float edgeWeight = -1;
    Edge<LabelType> theEdge = adjacencyList.getItem(endVertex);
    edgeWeight = theEdge.getWeight();
 
@@ -151,11 +151,11 @@ LabelType Vertex<LabelType>::getNextNeighbor()
 {
    if (adjacentIterator->hasNext())
    {
-      LabelType thisNeighbor = (adjacentIterator->next()).getEndVertex();
-      return thisNeighbor;
+	  LabelType thisNeighbor = (adjacentIterator->next()).getEndVertex();
+	  return thisNeighbor;
    }
    else
-      return this->getLabel(); // Signal end of adjacency list
+	  return this->getLabel(); // Signal end of adjacency list
 }  // end getNextNeighbor
 
 template<class LabelType>
@@ -173,13 +173,13 @@ int Vertex<LabelType>::getNeighborPosition(const LabelType& neighborVertex) cons
 
    while ( (position < length) &&  !foundNeighbor)
    {
-      position++;
-      Edge<LabelType> currentEdge = adjacencyList.getEntry(position);
-      foundNeighbor = (neighborVertex == currentEdge.getLabel());
+	  position++;
+	  Edge<LabelType> currentEdge = adjacencyList.getEntry(position);
+	  foundNeighbor = (neighborVertex == currentEdge.getLabel());
    }  // end while
 
    if ( (position > length) || (!foundNeighbor) )
-      position = -position;
+	  position = -position;
 
    return position;
 }  // end getNeighborPosition
