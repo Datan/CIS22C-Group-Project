@@ -72,32 +72,8 @@ public:
 	void writeMinSpanTree(ostream &os);
 	void writeOrderedEdges(ostream &os); // for debugging
 	bool undo();
-	bool add(LabelType start, LabelType end, float edgeWeight = 0)
-	{
-		if (LinkedGraph<LabelType>::add(start, end, edgeWeight))
-		{
-			Edge<LabelType> edge(end, edgeWeight);
-			PrimEdge<LabelType> newEdge(start, edge);
-			orderedEdges.push_back(newEdge);
-			return true;
-		}
-		return false;
-	}
-
-	bool remove(LabelType start, LabelType end)
-	{
-		vector<PrimEdge<LabelType>>::iterator iterElem;
-		for (iterElem = orderedEdges.begin(); iterElem != orderedEdges.end(); ++iterElem)
-		{
-			LabelType end1 = iterElem->getStart();
-			LabelType end2 = iterElem->getEnd();
-			if (start == end1 && end == end2 || start == end2 && end == end1){
-				orderedEdges.erase(iterElem);
-				break;
-			}
-		}
-		return LinkedGraph<LabelType>::remove(start, end);
-	}
+	bool add(LabelType start, LabelType end, float edgeWeight = 0);
+	bool remove(LabelType start, LabelType end);
 };
 
 /*
@@ -373,3 +349,59 @@ void Prim<LabelType>::writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect
 }
 // End of function definitions to print out things
 
+template<class LabelType>
+bool Prim<LabelType>::remove(LabelType start, LabelType end)
+{
+	vector<PrimEdge<LabelType>>::iterator iterElem;
+	for (iterElem = orderedEdges.begin(); iterElem != orderedEdges.end(); ++iterElem)
+	{
+		LabelType end1 = iterElem->getStart();
+		LabelType end2 = iterElem->getEnd();
+		if (start == end1 && end == end2 || start == end2 && end == end1){
+			undoStack.push(*iterElem);
+			orderedEdges.erase(iterElem);
+			break;
+		}
+	}
+	return LinkedGraph<LabelType>::remove(start, end);
+}
+
+
+template<class LabelType>
+bool Prim<LabelType>::add(LabelType start, LabelType end, float edgeWeight = 0)
+{
+	if (LinkedGraph<LabelType>::add(start, end, edgeWeight))
+	{
+		Edge<LabelType> edge(end, edgeWeight);
+		PrimEdge<LabelType> newEdge(start, edge);
+		orderedEdges.push_back(newEdge);
+		return true;
+	}
+	return false;
+}
+
+template <class LabelType>
+bool Prim<LabelType>::undo()
+{
+	if (undoStack.size() > 0)
+	{
+		PrimEdge<LabelType> temp = undoStack.peek();
+		LabelType start = temp.getStart();
+		LabelType end = temp.getEnd();
+		float weight = temp.getWeight();
+		cout << "\nUndo\n";
+
+		if (add(start, end, weight))
+		{
+			undoStack.pop();
+			return true;
+		}
+		else
+			return false;
+	}
+	else
+	{
+		cout << "There is nothing to undo" << endl;
+		return false;
+	}
+}
