@@ -57,6 +57,8 @@ public:
    void breadthFirstTraversal(LabelType start, void visit(LabelType&));
 
    bool isInGraph(LabelType & item);
+   void traverseAll(void visit(LabelType&));
+   void traverseAll(void visit(LabelType&, vector<LabelType>&), vector<LabelType>& vect);
    //---> YOU DECLARE HERE (AND WRITE BELOW) THE MEMBER FUNCTION TO
    //         WRITE THE GRAPH TO A TEXT FILE (SUGGEST TO PASS AN
    //        ofstream TO THIS !
@@ -276,6 +278,17 @@ bool LinkedGraph<LabelType>::isInGraph(LabelType & item)
 	return vertices.contains(item) ? true : false;
 }
 
+// Displays all items in the graph
+template<class LabelType>
+void LinkedGraph<LabelType>::traverseAll(void visit(LabelType&))
+{
+	vertices.traverse(visit);
+}
+template<class LabelType>
+void LinkedGraph<LabelType>::traverseAll(void visit(LabelType&, vector<LabelType>&), vector<LabelType>& vect)
+{
+	vertices.traverse(visit, vect);
+}
 // WRITE THE MEMBER FUNCTION HERE TO
    //         WRITE THE GRAPH TO A TEXT FILE (SUGGEST TO PASS AN
    //        ofstream TO THIS !

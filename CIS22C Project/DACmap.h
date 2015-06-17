@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <vector>
 /*
 Written by C. Lee-Klawender
 
@@ -55,7 +56,8 @@ public:
 
 	/** Traverses the items in this dictionary in sorted search-key order
 	and calls a given client function once for each item. */
-	void traverse(void visit(ItemType&)) const;
+	void traverse(void visit(KeyType&)) const;
+	void traverse(void visit(KeyType&, vector<KeyType>&), vector<KeyType>& vect) const;
 
 	// For iterator
 	DACmapIterator<KeyType, ItemType> *iterator();
@@ -114,4 +116,27 @@ DACmapIterator<KeyType, ItemType> *DACmap<KeyType, ItemType>::iterator()
 		delete thisIterator;
 	thisIterator = new DACmapIterator<KeyType, ItemType>(&dacMap);
 	return thisIterator;
+}
+
+// Displays all items in the DACmap
+template <class KeyType, class ItemType>
+void DACmap<KeyType, ItemType>::traverse(void visit(KeyType&)) const
+{
+	typename map<KeyType, ItemType>::const_iterator itemIter = dacMap.begin();
+	for (; itemIter != dacMap.end(); ++itemIter)
+	{
+		KeyType item = itemIter->first;
+		visit(item);
+	}
+}
+
+template <class KeyType, class ItemType>
+void DACmap<KeyType, ItemType>::traverse(void visit(KeyType&, vector<KeyType>&), vector<KeyType>& vect) const
+{
+	typename map<KeyType, ItemType>::const_iterator itemIter = dacMap.begin();
+	for (; itemIter != dacMap.end(); ++itemIter)
+	{
+		KeyType item = itemIter->first;
+		visit(item, vect);
+	}
 }
