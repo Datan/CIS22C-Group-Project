@@ -1,7 +1,7 @@
 MAIN MENU
-Set input file
+Read file into graph (Will clear current contents)
 Modify graph data
 Display graph data
 Solve minimum spanning tree
 Info and help
-Exit Program
+Exit program

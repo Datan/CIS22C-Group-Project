@@ -23,16 +23,43 @@ void pause(){
 	cin.clear();
 	cin.ignore(1, '\n');
 }
-void display(string& anItem)
+int choice(int low, int high)
+{	/*
+	Function: Allows user to input int values between two values
+	Parameters:
+	low - Lowest int value to be used
+	high - Highest int value to be used
+	Returns: Valid integer input (integers between 'low' and 'high') (including 'low' and 'high')
+	*/
+	int cI;
+	do			// Loop runs until valid integer input is received (integers between 'low' and 'high')
+	{
+		cout << "Choice: ";
+		cin >> cI;
+		cin.ignore(10000, '\n');
+		cin.clear();
+		if (cI < low || cI > high)
+			cout << "Invalid choice, try again" << endl;
+	} while (cI < low || cI > high);
+	return cI;
+}
+template<typename ItemType>
+void display(ItemType& anItem)
 {
    cout << "Displaying item - " << anItem << endl;
 }
-void visitAddToVector(string & anItem)
-{
 
-}
-void AddEdge()
+template<typename ItemType>
+void visitAddToVector(ItemType & anItem, vector<ItemType> &vect)	
 {
+	vect.push_back(anItem);
+	// To be used as the vist function for depthFirstTraversal and breadthFirstTraversal
+	// Will have to overload those functions so that they can accept a visit function with a vector<string> parameter
+	// Will visit each vertex, and add that vertex to a vector
+}
+void AddEdge(Prim<string>* graph, vector<string> &vecVertices)	
+{
+	// Uses the vecVertices to store a list of all vertices in the graph
 	// Display a list of all vertices
 		// Let user choose one vertex
 	// Display a list of all vertices excluding the chosen one
@@ -138,7 +165,6 @@ bool openInputFile(ifstream &ifs)
 	string filename;	// String used to store the input for the file name
 	cout << "Enter the input filename: ";
 	getline(cin, filename);
-	cout << endl;
 	ifs.open(filename.c_str());
 	return ifs.is_open();
 }
@@ -152,18 +178,29 @@ void readFileIntoGraph(Prim<string>* graph, ifstream &inFile)
 		inFile.clear();
 		inFile.seekg(0, std::ios::beg);
 	}
+
 	string strTemp;
+	vector<string> vecVertices;	// Will be used to test if all the vertices from the file exist in the graph
 	while (strTemp != "BREAK")
+	{
 		inFile >> strTemp;
+		vecVertices.push_back(strTemp);
+	}
+	
+//	Prim<string>* tempPrim = new Prim < string > ;	Will be used to initially read, then will be copied to graph if conditions are met
 	string strStart, strEnd;
 	char cTemp;
 	float dWeight;
-//	int iWeight;
 	while (inFile >> dWeight >> strStart >> cTemp >> strEnd)
 	{
 //		iWeight = static_cast<int> (dWeight * 100);
 		graph->add(strStart, strEnd, dWeight);
 	}
+
+	// Add testing to see that every vertex in the file is in the graph (doesn't test edges) (yet?)
+	// if (tempPrim has all vertexes)
+	// delete graph;
+	// graph = tempPrim;
 }
 
 void menuTester()
@@ -204,11 +241,9 @@ void menuTester()
 }
 int main()
 {
-
+	Prim<string>* mainGraph = new Prim<string>;
 	LoopingMenu debugMenu;
-	vector<string> strDebugMenu{
-		"Debug/Testing Menu", "Test file reading", "Run Prim graph test", "Read from file and test", "Exit Menu"
-	};
+	vector<string> strDebugMenu{"Debug/Testing Menu", "Test file reading", "Run Prim graph test", "Read from file and test", "Test Traversal", "Exit Menu"};
 	vector<my_func> debugMenuFunctions{
 		[]()	// Debug menu option 1
 		{
@@ -250,7 +285,24 @@ int main()
 			else
 				return;
 		},		// Debug menu option 3
-		[](){cout << "In debug menu option 4" << endl; }		// Debug menu option 3
+		[]()
+		{
+			ifstream inFile;
+			if (openInputFile(inFile))
+			{
+				Prim<string>* graph = new Prim < string > ;
+				readFileIntoGraph(graph, inFile);
+				vector<string> vect;
+				graph->traverseAll(visitAddToVector, vect);
+				for (unsigned int i = 0; i < vect.size(); i++)
+					cout << i+1 << ") - " << vect[i] << endl;
+				// for (all items in vector)
+				//	cout << i+1) - << vector[i];
+				// cout << "select item number"
+				pause();
+			}
+		},		// Debug menu option 4
+		[](){cout << "In debug menu option 4" << endl; }		// Debug menu option 5
 	};
 	debugMenu.setMenu(strDebugMenu, debugMenuFunctions);
 	debugMenu.runMenu();
@@ -263,6 +315,32 @@ int main()
 	// Can use vector<my_func> instead of vector<function<void()>>
 	// Instead of creating individual lambda functions and adding them to the vector manually, create a vector of lambda functions using an initialization list
 	// This makes for simpler, easier to update code, but the functions being part of an initialization list can make it more difficult to read.
+	vector<my_func> mainMenuFunctions{
+		[&]() // Main menu option 1	(Read file into graph)
+		{
+			cout
+				<< "================================================================================"
+				<< "\tFile Reading" << endl
+				<< "================================================================================";
+			ifstream ifs;
+			if (openInputFile(ifs))
+			{
+				readFileIntoGraph(mainGraph, ifs);
+				cout << "File reading successful" << endl;
+			}		
+			else
+				cout << "ERROR: Failed to read from file" << endl;
+			ifs.close();
+			ifs.clear();
+			pause();
+		},	// End main menu option 1
+		[&](){ modifyMenu.runMenu(); },	// Main menu option 2	(Modify graph data)
+		[&](){ displayMenu.runMenu(); },	// Main menu option 3	(Display graph data)
+		[&](){ cout << "In Main Menu option 4" << endl; mainGraph->createMinSpanTree(); mainGraph->writeMinSpanTree(cout); },		// Main menu option 4	(Solve minimum spanning tree)
+		[](){cout << "In Main Menu option 5" << endl; },		// Main menu option 5	(Info and help)
+		[](){ cout << "In Main Menu option 6" << endl; }		// Main menu option 6	(Exit program)
+	};
+
 	vector<my_func> modifyMenuFunctions{
 		[](){ cout << "In modify menu option 1" << endl; },		// Modify menu option 1
 		[](){ cout << "In modify menu option 2" << endl; },		// Modify menu option 2
@@ -271,18 +349,66 @@ int main()
 		[](){ cout << "In modify menu option 5" << endl; }		// Modify menu option 5
 	};
 	vector<my_func> displayMenuFunctions{
-		[](){ cout << "In display menu option 1" << endl; },	// Display menu option 1
-		[](){ cout << "In display menu option 2" << endl;},		// Display menu option 2
-		[](){ cout << "In display menu option 3" << endl; },	// Display menu option 3
-		[](){ cout << "In display menu option 4" << endl; }		// Display menu option 4
-	};
-	vector<my_func> mainMenuFunctions{
-		[]() { cout << "In Main Menu option 1" << endl; ifstream ifs; openInputFile(ifs); },		// Main menu option 1
-		[&](){ cout << "In Main Menu option 2" << endl; modifyMenu.runMenu(); },	// Main menu option 2
-		[&](){ cout << "In Main Menu option 3" << endl; displayMenu.runMenu(); },	// Main menu option 3
-		[](){ cout << "In Main Menu option 4" << endl; },		// Main menu option 4
-		[](){cout << "In Main Menu option 5" << endl; },		// Main menu option 5
-		[](){ cout << "In Main Menu option 6" << endl; }		// Main menu option 6
+		[&]()	// Display menu option 1	(Display on screen using depth-first traversal)
+		{ 
+			cout
+				<< "================================================================================"
+				<< "\tDepth-First Traversal" << endl
+				<< "================================================================================";
+			if (mainGraph->getNumVertices() == 0)
+			{
+				cout << "ERROR: Graph does not contain enough vertices to traverse" << endl;
+			}
+			else
+			{
+				vector<string> vectVertices;
+				mainGraph->traverseAll(visitAddToVector, vectVertices);
+				cout << "Choose an initial vertex for traversal" << endl;
+				for (unsigned int i = 0; i < vectVertices.size(); i++)
+					cout << i + 1 << ") - " << vectVertices[i] << endl;
+				int indexChoice;	
+				cout << "Enter the initial vertex for traversal: ";
+				indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
+				system("cls");
+				cout
+					<< "================================================================================"
+					<< "\tDepth-First Traversal" << endl
+					<< "================================================================================";
+				mainGraph->depthFirstTraversal(vectVertices[indexChoice-1], display);
+			}
+			pause();
+		},	// End display menu option 1
+		[&]()	// Display menu option 2	(Display on screen using breadth-first traversal)
+		{
+			cout
+				<< "================================================================================"
+				<< "\tBreadth-First Traversal" << endl
+				<< "================================================================================";
+			if (mainGraph->getNumVertices() == 0)
+			{
+				cout << "ERROR: Graph does not contain enough vertices to traverse" << endl;
+			}
+			else
+			{
+				vector<string> vectVertices;
+				mainGraph->traverseAll(visitAddToVector, vectVertices);
+				cout << "Choose an initial vertex for traversal" << endl;
+				for (unsigned int i = 0; i < vectVertices.size(); i++)
+					cout << i + 1 << ") - " << vectVertices[i] << endl;
+				int indexChoice;
+				cout << "Enter the initial vertex for traversal: ";
+				indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
+				system("cls");
+				cout
+					<< "================================================================================"
+					<< "\tBreadth-First Traversal" << endl
+					<< "================================================================================";
+				mainGraph->breadthFirstTraversal(vectVertices[indexChoice-1], display);
+			}
+			pause();
+		},	// End display menu option 2
+		[](){ cout << "In display menu option 3" << endl; },	// Display menu option 3	(Write to a text file using breadth-first traversal)
+		[](){ cout << "In display menu option 4" << endl; }		// Display menu option 4	(Go back)
 	};
 
 	mainMenu.setMenu(strMainMenu, mainMenuFunctions);
@@ -300,7 +426,7 @@ int main()
 
 	//menuTester();
 
-
+	delete mainGraph;
 	cout << endl << "End of program" << endl;
 	pause();
 	return 0;
