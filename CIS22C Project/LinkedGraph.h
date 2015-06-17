@@ -56,6 +56,7 @@ public:
    void depthFirstTraversal(LabelType start, void visit(LabelType&));
    void breadthFirstTraversal(LabelType start, void visit(LabelType&));
 
+   bool isInGraph(LabelType & item);
    //---> YOU DECLARE HERE (AND WRITE BELOW) THE MEMBER FUNCTION TO
    //         WRITE THE GRAPH TO A TEXT FILE (SUGGEST TO PASS AN
    //        ofstream TO THIS !
@@ -267,6 +268,13 @@ findOrCreateVertex(const LabelType& vertexLabel)
 
    return theVertex;
 }  // end findOrCreateVertex
+
+// Tests if an item is a vertex
+template<class LabelType>
+bool LinkedGraph<LabelType>::isInGraph(LabelType & item)
+{
+	return vertices.contains(item) ? true : false;
+}
 
 // WRITE THE MEMBER FUNCTION HERE TO
    //         WRITE THE GRAPH TO A TEXT FILE (SUGGEST TO PASS AN
