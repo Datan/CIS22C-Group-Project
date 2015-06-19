@@ -59,6 +59,8 @@ public:
 	void traverse(void visit(KeyType&)) const;
 	void traverse(void visit(KeyType&, vector<KeyType>&), vector<KeyType>& vect) const;
 
+	KeyType getFirstItem() const;
+
 	// For iterator
 	DACmapIterator<KeyType, ItemType> *iterator();
 };
@@ -139,4 +141,10 @@ void DACmap<KeyType, ItemType>::traverse(void visit(KeyType&, vector<KeyType>&),
 		KeyType item = itemIter->first;
 		visit(item, vect);
 	}
+}
+template <class KeyType, class ItemType>
+KeyType DACmap<KeyType, ItemType>::getFirstItem() const
+{
+	KeyType item = dacMap.begin()->first;
+	return item;
 }

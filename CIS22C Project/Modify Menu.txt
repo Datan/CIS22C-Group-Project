@@ -1,4 +1,4 @@
-MODIFY GRAPH DATA
+MAIN MENU -> MODIFY DATA
 Add an edge to the graph
 Undo addition
 Remove an edge from the graph

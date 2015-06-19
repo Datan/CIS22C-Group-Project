@@ -37,6 +37,8 @@ protected: // protected so you can derive this class for you team project soluti
 
    void depthFirstTraversalHelper(Vertex<LabelType>* startVertex,  void visit(LabelType&));
    void breadthFirstTraversalHelper(Vertex<LabelType>* startVertex, void visit(LabelType&));
+
+   LabelType getFirstVertex() const;
 public:
    LinkedGraph();
    virtual ~LinkedGraph();
@@ -51,12 +53,17 @@ public:
    // Then, if those are successful and either start or end no longer
    // has neighbors, the vertex is removed from the graph
    virtual bool remove(LabelType start, LabelType end);
+   virtual bool removeEdge(LabelType start, LabelType end);
 
    float getEdgeWeight(LabelType start, LabelType end) const;
    void depthFirstTraversal(LabelType start, void visit(LabelType&));
    void breadthFirstTraversal(LabelType start, void visit(LabelType&));
 
+   void depthFirstTraversal(void visit(LabelType&));
+   void breadthFirstTraversal(void visit(LabelType&));
+
    bool isInGraph(LabelType & item);
+
    void traverseAll(void visit(LabelType&));
    void traverseAll(void visit(LabelType&, vector<LabelType>&), vector<LabelType>& vect);
    //---> YOU DECLARE HERE (AND WRITE BELOW) THE MEMBER FUNCTION TO
@@ -145,6 +152,30 @@ bool LinkedGraph<LabelType>::remove(LabelType start, LabelType end)
 	  successful = false;    // Failed disconnect from startVertex
 
    return successful;
+}  // end remove
+
+template<class LabelType>
+bool LinkedGraph<LabelType>::removeEdge(LabelType start, LabelType end)
+{
+	bool successful = false;
+	Vertex<LabelType>* startVertex = vertices.getItem(start);
+	Vertex<LabelType>* endVertex = vertices.getItem(end);
+
+	successful = startVertex->disconnect(end);
+	if (successful)
+	{
+		successful = endVertex->disconnect(start);
+		if (successful)
+		{
+			numberOfEdges--;
+		}
+		else
+			successful = false; // Failed disconnect from endVertex
+	}
+	else
+		successful = false;    // Failed disconnect from startVertex
+
+	return successful;
 }  // end remove
 
 template<class LabelType>
@@ -277,6 +308,12 @@ bool LinkedGraph<LabelType>::isInGraph(LabelType & item)
 {
 	return vertices.contains(item) ? true : false;
 }
+template<class LabelType>
+LabelType LinkedGraph<LabelType>::getFirstVertex() const
+{
+	LabelType item = vertices.getFirstItem();
+	return item;
+}
 
 // Displays all items in the graph
 template<class LabelType>
@@ -292,4 +329,29 @@ void LinkedGraph<LabelType>::traverseAll(void visit(LabelType&, vector<LabelType
 // WRITE THE MEMBER FUNCTION HERE TO
    //         WRITE THE GRAPH TO A TEXT FILE (SUGGEST TO PASS AN
    //        ofstream TO THIS !
+
+template<class LabelType>
+void LinkedGraph<LabelType>::depthFirstTraversal(void visit(LabelType&))
+{
+	// Mark all vertices as unvisited
+	unvisitVertices();
+	// Get this first vertex of the DACMap
+	LabelType startLabel = this->getFirstVertex();
+
+	Vertex<LabelType>* startVertex = vertices.getItem(startLabel);
+	depthFirstTraversalHelper(startVertex, visit);
+}  // end depthFirstTraversal
+
+template<class LabelType>
+void LinkedGraph<LabelType>::breadthFirstTraversal(void visit(LabelType&))
+{
+	// Mark all vertices as unvisited
+	unvisitVertices();
+	// Get this first vertex of the DACMap
+	LabelType startLabel = this->getFirstVertex();
+
+	Vertex<LabelType>* startVertex = vertices.getItem(startLabel);
+	breadthFirstTraversalHelper(startVertex, visit);
+}  // end breadthFirstTraversal
+
 #endif

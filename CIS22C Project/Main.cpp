@@ -16,13 +16,21 @@ const string strMainMenu = "Main Menu.txt";
 const string strModifyMenu = "Modify Menu.txt";
 const string strDisplayMenu = "Display Menu.txt";
 
-vector<string> testGlobalMenu{"Global Test Header", "Use function 1", "Use function 2", "Use function 3", "Exit Menu"};	// Can't make it const without changing the parameters for the Menu classes
+
+struct inputEdge
+{
+	string start;
+	string end;
+	float weight;
+	bool isAdd;
+};
 
 void pause(){
 	cout << "Press <ENTER> to continue" << endl;
 	cin.clear();
 	cin.ignore(1, '\n');
 }
+
 int choice(int low, int high)
 {	/*
 	Function: Allows user to input int values between two values
@@ -36,36 +44,26 @@ int choice(int low, int high)
 	{
 		cout << "Choice: ";
 		cin >> cI;
-		cin.ignore(10000, '\n');
 		cin.clear();
+		cin.ignore(10000, '\n');
+
 		if (cI < low || cI > high)
 			cout << "Invalid choice, try again" << endl;
 	} while (cI < low || cI > high);
 	return cI;
 }
+
 template<typename ItemType>
 void display(ItemType& anItem)
 {
-   cout << "Displaying item - " << anItem << endl;
+   cout << "Vertex - " << anItem << endl;
 }
 
+// To be used as the visit function of a traversal function
 template<typename ItemType>
 void visitAddToVector(ItemType & anItem, vector<ItemType> &vect)	
 {
 	vect.push_back(anItem);
-	// To be used as the vist function for depthFirstTraversal and breadthFirstTraversal
-	// Will have to overload those functions so that they can accept a visit function with a vector<string> parameter
-	// Will visit each vertex, and add that vertex to a vector
-}
-void AddEdge(Prim<string>* graph, vector<string> &vecVertices)	
-{
-	// Uses the vecVertices to store a list of all vertices in the graph
-	// Display a list of all vertices
-		// Let user choose one vertex
-	// Display a list of all vertices excluding the chosen one
-		// Let user choose one vertex
-	// User enters a weight for the new edge between vertices
-	// Call Prim add function
 }
 void primTest(Prim<string>* graph)
 {
@@ -165,7 +163,7 @@ bool openInputFile(ifstream &ifs)
 	string filename;	// String used to store the input for the file name
 	cout << "Enter the input filename: ";
 	getline(cin, filename);
-	ifs.open(filename.c_str());
+	ifs.open(filename);
 	return ifs.is_open();
 }
 
@@ -202,48 +200,181 @@ void readFileIntoGraph(Prim<string>* graph, ifstream &inFile)
 	// delete graph;
 	// graph = tempPrim;
 }
-
-void menuTester()
+void addEdgeToGraph(Prim<string>* graph, LinkedStack<inputEdge>* addStack)
 {
-	string temp = "item";
-	int val = 5;
-	function<void()> function1 = []() {cout << "This is function 1" << endl; };
-	function<void()> function2 = [&]() {cout << "This is function 2 \nNow using function1" << endl; function1(); };
-	auto function3 = [&]() {cout << "This is function 3\nUsing display function: " << endl; display(temp); };
-	auto function4 = []() { cout << "This is function 4" << endl; };
+	vector<string> strAddEdgeMenu{ "MAIN MENU -> MODIFY DATA -> ADD AN EDGE", "Add an edge using existing vertices", "Add an edge using new vertices", "Add an edge using an existing vertex and a new vertex", "Go back" };
+	vector<my_func> addEdgeMenuFunctions
+	{
+		[&]()	// Add edge menu option 1 (Add an edge using existing vertices)
+		{
+			string strHeader[] = { "================================================================================", "\tAdd an edge using existing vertices\n", "================================================================================" };
+			
+			for (string temp : strHeader)
+				cout << temp;
 
+			if (graph->getNumVertices() < 2)
+			{
+				cout << "ERROR: Not enough vertices to add an edge" << endl;
+			}
+			else
+			{
+				inputEdge inputAddEdge;
+				vector<string> vectVertices;
+				int indexChoice;
+				float fInput;
 
+				// Display first list of all vertices
+				graph->traverseAll(visitAddToVector, vectVertices);
+				cout << "Choose first vertex for the edge" << endl;
+				for (unsigned int i = 0; i < vectVertices.size(); i++)
+					cout << i + 1 << ") - " << vectVertices[i] << endl;
 
-	vector<string> strVec { "In-line Test Header", "Use function 1", "Use function 2", "Use function 3", "Exit Menu" };
+				indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
+				inputAddEdge.start = vectVertices[indexChoice - 1];
+				vectVertices.erase(vectVertices.begin() + indexChoice - 1);
+				system("cls");
 
-	vector<function<void()>> functions;
-	
-	functions.push_back(function1);
-	functions.push_back(function2);
-	functions.push_back(function3);
-	functions.push_back([]() {cout << "This is function 4" << endl; });
-//	functions.push_back(function4);
+				// Add check to display only vertexes that AREN'T connected
+				// Get vector of adjacency list
+				// Remove items in the adjacency list from the main display vector
 
+				for (string temp : strHeader)
+					cout << temp;
+				// Display second list of all vertices minus user choice
+				cout << "Choose second vertex for the edge" << endl;
+				for (unsigned int i = 0; i < vectVertices.size(); i++)
+					cout << i + 1 << ") - " << vectVertices[i] << endl;
 
-	Menu* testMenu = new Menu(strVec, functions);
-	testMenu->runMenu();
-	pause();
+				indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
+				inputAddEdge.end = vectVertices[indexChoice - 1];
+				system("cls");
 
-	testMenu->clear();
-	testMenu->setMenu(testGlobalMenu, functions);
-	testMenu->runMenu();
-	pause();
+				for (string temp : strHeader)
+					cout << temp;
+				cout << "Choose an edge weight: ";
+				cin >> fInput;
+				cin.ignore(100000, '\n');
+				cin.clear();
+				while (fInput <= 0)
+				{
+					cout << "Edge weight must be > 0" << endl;
+					cout << "Choose an edge weight: ";
+					cin >> fInput;
+					cin.ignore(100000, '\n');
+					cin.clear();
+				}
+				inputAddEdge.weight = fInput;
+				if (graph->add(inputAddEdge.start, inputAddEdge.end, inputAddEdge.weight))
+				{
+					cout << "Successfully added edge: " << inputAddEdge.start << " - " << inputAddEdge.end << " (" << inputAddEdge.weight << ")" << endl;
+					addStack->push(inputAddEdge);
+				}
+				else
+					cout << "ERROR: Failed to add edge" << endl;
+			}
+			pause();
+		},	// End add edge menu option 1 (Add an edge using existing vertices)
+		[&]()	// Add edge menu option 2 (Add an edge using new vertices)
+		{
+			string strHeader[] = { "================================================================================", "\tAdd an edge using new vertices\n", "================================================================================" };
+			inputEdge inputAddEdge;
 
-	testMenu->clear();
-	testMenu->setMenu("Test Menu.txt", functions);
-	testMenu->runMenu();
-	pause();
+			for (string temp : strHeader)
+				cout << temp;
+
+			cout << "Enter vertex 1: " << endl;
+			cin >> inputAddEdge.start;
+			cin.ignore(100000, '\n');
+			cin.clear();
+			// PERFORM INPUT VALIDATION HERE
+			// Add check to make sure vertex doesn't exist
+
+			cout << "Enter vertex 2: " << endl;
+			cin >> inputAddEdge.end;
+			cin.ignore(100000, '\n');
+			cin.clear();
+			// PERFORM INPUT VALIDATION HERE
+			// Add check to make sure verttex doesn't exist
+
+			cout << "Enter edge weight: " << endl;
+			cin >> inputAddEdge.weight;
+			cin.ignore(100000, '\n');
+			cin.clear();
+			// PERFORM INPUT VALIDATION HERE
+
+			if (graph->add(inputAddEdge.start, inputAddEdge.end, inputAddEdge.weight))
+			{
+				cout << "Successfully added edge" << endl;
+				addStack->push(inputAddEdge);
+			}
+			else
+				cout << "ERROR: Failed to add edge" << endl;
+			pause();
+		},	// End add edge menu option 2 (Add an edge using new vertices)
+		[&]()	// Add edge menu option 3 (Add an edge using an existing vertex and a new vertex)
+		{
+			string strHeader[] = { "================================================================================", "\tAdd an edge using an existing vertex and a new vertex\n", "================================================================================" };
+
+			for (string temp : strHeader)
+				cout << temp;
+
+			if (graph->getNumVertices() < 1)
+			{
+				cout << "ERROR: Not enough vertices to add an edge" << endl;
+			}
+			else
+			{
+				inputEdge inputAddEdge;
+				vector<string> vectVertices;
+				int indexChoice;
+
+				graph->traverseAll(visitAddToVector, vectVertices);
+				cout << "Choose first vertex for the edge" << endl;
+				for (unsigned int i = 0; i < vectVertices.size(); i++)
+					cout << i + 1 << ") - " << vectVertices[i] << endl;
+
+				indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
+				inputAddEdge.start = vectVertices[indexChoice - 1];
+				vectVertices.erase(vectVertices.begin() + indexChoice - 1);
+				system("cls");
+
+				for (string temp : strHeader)
+					cout << temp;
+				cout << "Vertex 1: " << inputAddEdge.start << endl;
+				cout << "Enter vertex 2: " << endl;
+				cin >> inputAddEdge.end;
+				cin.ignore(100000, '\n');
+				cin.clear();
+				// PERFORM INPUT VALIDATION HERE
+
+				cout << "Enter edge weight: " << endl;
+				cin >> inputAddEdge.weight;
+				cin.ignore(100000, '\n');
+				cin.clear();
+				// PERFORM INPUT VALIDATION HERE
+
+				if (graph->add(inputAddEdge.start, inputAddEdge.end, inputAddEdge.weight))
+				{
+					cout << "Successfully added edge" << endl;
+					addStack->push(inputAddEdge);
+				}
+				else
+					cout << "ERROR: Failed to add edge" << endl;
+			}
+			pause();
+		},	// End add edge menu option 3 (Add an edge using an existing vertex and a new vertex)
+		[](){}	// Add edge menu option 4 (Go back)
+	};
+
+	LoopingMenu addEdgeMenu;
+	addEdgeMenu.setMenu(strAddEdgeMenu, addEdgeMenuFunctions);
+	addEdgeMenu.runMenu();
+	// Give the user an option of adding edges in multiple ways
 }
 int main()
 {
-	Prim<string>* mainGraph = new Prim<string>;
 	LoopingMenu debugMenu;
-	vector<string> strDebugMenu{"Debug/Testing Menu", "Test file reading", "Run Prim graph test", "Read from file and test", "Test Traversal", "Exit Menu"};
+	vector<string> strDebugMenu{"Debug/Testing Menu", "Test file reading", "Run Prim graph test", "Read from file and test", "Test Traversal", "Traverse using first item of graph", "Exit Menu"};
 	vector<my_func> debugMenuFunctions{
 		[]()	// Debug menu option 1
 		{
@@ -264,14 +395,16 @@ int main()
 			else
 				return;
 		},	// End debug menu option 1
-		[](){
+		[]()		// Debug menu option 2
+		{
 		//	cout << "In debug menu option 2" << endl;
 			Prim<string>* graph = new Prim< string >;
 			cout << "Running graph test" << endl;
 			primTest(graph);
 			pause();
-		},		// Debug menu option 2
-		[](){
+		},	// End debug menu option 2
+		[]()	// Debug menu option 3
+		{
 			cout << "Reading a file into a graph" << endl;
 			ifstream inFile;
 
@@ -283,9 +416,9 @@ int main()
 				primFileTest(graph);
 			}
 			else
-				return;
-		},		// Debug menu option 3
-		[]()
+				cout << "Failed to open file" << endl;
+		},	// End debug menu option 3
+		[]()	// Debug menu option 4
 		{
 			ifstream inFile;
 			if (openInputFile(inFile))
@@ -301,15 +434,36 @@ int main()
 				// cout << "select item number"
 				pause();
 			}
-		},		// Debug menu option 4
-		[](){cout << "In debug menu option 4" << endl; }		// Debug menu option 5
-	};
+			else
+				cout << "Failed to open file" << endl;
+		},	// End debug menu option 4
+		[]()	// Debug menu option 5
+		{
+			ifstream inFile;
+			if (openInputFile(inFile))
+			{
+				Prim<string>* graph = new Prim < string > ;
+				readFileIntoGraph(graph, inFile);
+		//		string firstItem = graph->getFirstVertex();
+		//		graph->depthFirstTraversal(firstItem, display);
+			}
+			else
+				cout << "Failed to open file" << endl;
+			pause();
+		},	// End debug menu option 5
+		[](){cout << "In debug menu option 4" << endl; }		// Debug menu option 6
+	};	
 	debugMenu.setMenu(strDebugMenu, debugMenuFunctions);
 	debugMenu.runMenu();
+
+	Prim<string>* mainGraph = new Prim<string>;
 
 	LoopingMenu mainMenu;
 	LoopingMenu modifyMenu;
 	LoopingMenu displayMenu;
+
+	LinkedStack<inputEdge>* stackAddEdge = new LinkedStack<inputEdge>;
+	LinkedStack<inputEdge>* stackRemoveEdge = new LinkedStack<inputEdge>;
 
 	// Vectors of lambdas (essentially really cool in line functions) to use for the menus
 	// Can use vector<my_func> instead of vector<function<void()>>
@@ -320,7 +474,7 @@ int main()
 		{
 			cout
 				<< "================================================================================"
-				<< "\tFile Reading" << endl
+				<< "\tMAIN MENU -> READ FROM FILE" << endl
 				<< "================================================================================";
 			ifstream ifs;
 			if (openInputFile(ifs))
@@ -333,82 +487,121 @@ int main()
 			ifs.close();
 			ifs.clear();
 			pause();
-		},	// End main menu option 1
+		},	// End main menu option 1 (Read file into graph)
 		[&](){ modifyMenu.runMenu(); },	// Main menu option 2	(Modify graph data)
 		[&](){ displayMenu.runMenu(); },	// Main menu option 3	(Display graph data)
-		[&](){ cout << "In Main Menu option 4" << endl; mainGraph->createMinSpanTree(); mainGraph->writeMinSpanTree(cout); },		// Main menu option 4	(Solve minimum spanning tree)
-		[](){cout << "In Main Menu option 5" << endl; },		// Main menu option 5	(Info and help)
-		[](){ cout << "In Main Menu option 6" << endl; }		// Main menu option 6	(Exit program)
+		[&]()	// Main menu option 4 (Solve minimum spanning tree)
+		{ 
+			cout
+				<< "================================================================================"
+				<< "\tMAIN MENU -> MINMUM SPANNING TREE" << endl
+				<< "================================================================================";
+			if (mainGraph->getNumVertices() < 1 || (mainGraph->getNumEdges() < mainGraph->getNumVertices() - 1))
+				cout << "ERROR: Not enough data for a minimum spanning tree" << endl;
+			else
+			{
+				mainGraph->createMinSpanTree();
+				mainGraph->writeMinSpanTree(cout);
+				pause();
+				cout << "Write tree to a file? Y/N: " << endl;
+				// ofstream file
+				// openOutputFile(file)
+				// graph->writeToFile();
+			}
+
+			pause();
+		},		// End main menu option 4	(Solve minimum spanning tree)
+		[](){ cout << "In Main Menu option 5" << endl; },		// Main menu option 5	(Info and help)
+		[](){}		// Main menu option 6	(Exit program)
 	};
 
+	// Vector of lambda functions for the "Modify graph data" sub menu
 	vector<my_func> modifyMenuFunctions{
-		[](){ cout << "In modify menu option 1" << endl; },		// Modify menu option 1
-		[](){ cout << "In modify menu option 2" << endl; },		// Modify menu option 2
-		[](){ cout << "In modify menu option 3" << endl; },		// Modify menu option 3
-		[](){ cout << "In modify menu option 4" << endl; },		// Modify menu option 4
-		[](){ cout << "In modify menu option 5" << endl; }		// Modify menu option 5
+		[&](){ addEdgeToGraph(mainGraph, stackAddEdge);/* addMenu->runMenu()*/},	// End modify menu option 1	(Add an edge to the graph)
+		[&]()	// Modify menu option 2 (Undo addition)
+		{
+			cout
+				<< "================================================================================"
+				<< "\tMAIN MENU -> MODIFY DATA -> UNDO EDGE ADDITION" << endl
+				<< "================================================================================";
+			if (stackAddEdge->size() > 0)
+			{
+				inputEdge tempEdge = stackAddEdge->peek();
+				stackAddEdge->pop();
+
+				mainGraph->remove(tempEdge.start, tempEdge.end);
+				// cout << tempEdge <<  " successfully removed" << endl;
+				cout << "Latest addition successfully undone" << endl;
+			}
+			else
+				cout << "ERROR: No additions to undo" << endl;
+			pause();
+		},	// End modify menu option 2 (Undo addition)
+		[&]()	// Modify menu option 3 (Remove an edge from the graph)
+		{ 
+			cout
+				<< "================================================================================"
+				<< "\tMAIN MENU -> MODIFY DATA -> REMOVE EDGE" << endl
+				<< "================================================================================";
+			// Need to display all edges, and allow user to select which edge to remove
+			// use remove function
+			mainGraph->writeEdgesVect(cout);
+
+			pause();
+		},	// End modify menu option 3 (Remove an edge from the graph)
+		[&]()	// Modify menu option 4 (Undo removal)
+		{
+			cout
+				<< "================================================================================"
+				<< "\tMAIN MENU -> MODIFY GRAPH DATA -> UNDO EDGE REMOVAL" << endl
+				<< "================================================================================";
+			if (stackRemoveEdge->size() > 0)	// If the stack has an item
+			{
+				inputEdge tempEdge = stackRemoveEdge->peek();
+				stackRemoveEdge->pop();
+
+				mainGraph->add(tempEdge.start, tempEdge.end, tempEdge.weight);
+				// cout << tempEdge <<  " successfully re-added" << endl;
+				cout << "Latest removal successfully undone" << endl;
+			}
+			else	// The stack has no items, therefore no removals to undo
+				cout << "ERROR: No removals to undo" << endl;
+			pause();
+		},	// End modify menu option 4	(Undo removal)
+		[](){}		// Modify menu option 5	(Go back)
 	};
+	// Vector of lambda functions for the "Display graph data" sub menu
 	vector<my_func> displayMenuFunctions{
 		[&]()	// Display menu option 1	(Display on screen using depth-first traversal)
 		{ 
 			cout
 				<< "================================================================================"
-				<< "\tDepth-First Traversal" << endl
+				<< "\tMAIN MENU -> DISPLAY GRAPH DATA -> DEPTH-FIRST TRAVERSAL" << endl
 				<< "================================================================================";
 			if (mainGraph->getNumVertices() == 0)
-			{
 				cout << "ERROR: Graph does not contain enough vertices to traverse" << endl;
-			}
+			else if (mainGraph->getNumEdges() < mainGraph->getNumVertices() - 1)
+				cout << "ERROR: Graph does not contain enough edges to traverse" << endl;
 			else
-			{
-				vector<string> vectVertices;
-				mainGraph->traverseAll(visitAddToVector, vectVertices);
-				cout << "Choose an initial vertex for traversal" << endl;
-				for (unsigned int i = 0; i < vectVertices.size(); i++)
-					cout << i + 1 << ") - " << vectVertices[i] << endl;
-				int indexChoice;	
-				cout << "Enter the initial vertex for traversal: ";
-				indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
-				system("cls");
-				cout
-					<< "================================================================================"
-					<< "\tDepth-First Traversal" << endl
-					<< "================================================================================";
-				mainGraph->depthFirstTraversal(vectVertices[indexChoice-1], display);
-			}
+				mainGraph->depthFirstTraversal(display);
 			pause();
-		},	// End display menu option 1
+		},	// End display menu option 1 (Display on screen using depth-first traversal)
 		[&]()	// Display menu option 2	(Display on screen using breadth-first traversal)
 		{
 			cout
 				<< "================================================================================"
-				<< "\tBreadth-First Traversal" << endl
+				<< "\tMAIN MENU -> DISPLAY GRAPH DATA -> BREADTH-FIRST TRAVERSAL" << endl
 				<< "================================================================================";
 			if (mainGraph->getNumVertices() == 0)
-			{
 				cout << "ERROR: Graph does not contain enough vertices to traverse" << endl;
-			}
+			else if (mainGraph->getNumEdges() < mainGraph->getNumVertices() - 1)
+				cout << "ERROR: Graph does not contain enough edges to traverse" << endl;
 			else
-			{
-				vector<string> vectVertices;
-				mainGraph->traverseAll(visitAddToVector, vectVertices);
-				cout << "Choose an initial vertex for traversal" << endl;
-				for (unsigned int i = 0; i < vectVertices.size(); i++)
-					cout << i + 1 << ") - " << vectVertices[i] << endl;
-				int indexChoice;
-				cout << "Enter the initial vertex for traversal: ";
-				indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
-				system("cls");
-				cout
-					<< "================================================================================"
-					<< "\tBreadth-First Traversal" << endl
-					<< "================================================================================";
-				mainGraph->breadthFirstTraversal(vectVertices[indexChoice-1], display);
-			}
+				mainGraph->breadthFirstTraversal(display);
 			pause();
-		},	// End display menu option 2
+		},	// End display menu option 2 (Display on screen using breadth-first traversal)
 		[](){ cout << "In display menu option 3" << endl; },	// Display menu option 3	(Write to a text file using breadth-first traversal)
-		[](){ cout << "In display menu option 4" << endl; }		// Display menu option 4	(Go back)
+		[](){}		// Display menu option 4	(Go back)
 	};
 
 	mainMenu.setMenu(strMainMenu, mainMenuFunctions);
@@ -427,46 +620,10 @@ int main()
 	//menuTester();
 
 	delete mainGraph;
-	cout << endl << "End of program" << endl;
+	delete stackAddEdge;
+	delete stackRemoveEdge;
+
+	cout << "End of program" << endl;
 	pause();
 	return 0;
 }  // end main
-
-/*
- Testing Graph . . . .
- 
- Vertices :14
- Edges :14
- 
- Depth-first traversal (should be A B E F J C G K L D H M I N):
- Displaying item - A
- Displaying item - B
- Displaying item - E
- Displaying item - F
- Displaying item - J
- Displaying item - C
- Displaying item - G
- Displaying item - K
- Displaying item - L
- Displaying item - D
- Displaying item - H
- Displaying item - M
- Displaying item - I
- Displaying item - N
- 
- Breadth-first traversal (should be A B C D E F G H I J K L M N):
- Displaying item - A
- Displaying item - B
- Displaying item - C
- Displaying item - D
- Displaying item - E
- Displaying item - F
- Displaying item - G
- Displaying item - H
- Displaying item - I
- Displaying item - J
- Displaying item - K
- Displaying item - L
- Displaying item - M
- Displaying item - N
-*/

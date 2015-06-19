@@ -85,6 +85,8 @@
     <Text Include="Display Menu.txt" />
     <Text Include="Main Menu.txt" />
     <Text Include="Modify Menu.txt" />
+    <Text Include="Test Input File 3.txt" />
+    <Text Include="Test Input File2.txt" />
     <Text Include="Test Input File.txt" />
     <Text Include="Test Menu.txt" />
   </ItemGroup>

@@ -41,7 +41,24 @@ public:
 
 	void operator=(const Menu & menu);
 };
+Menu::Menu()	// Default constructor
+{
+	header = "NULL";
+}
 
+Menu::Menu(string fileName, vector<my_func> & funcs)
+{
+	this->setInputFile(fileName);
+	functions = funcs;
+}
+
+Menu::Menu(vector<string> & fullMenu, vector<my_func> & funcs)	// Constructor
+{
+	header = fullMenu[0];
+	for (unsigned int i = 1; i < fullMenu.size(); i++)
+		menuVector.push_back(fullMenu[i]);
+	functions = funcs;
+}
 // ********** PRIVATE FUNCTIONS ********** //
 
 int Menu::choice(int low, int high)
@@ -126,24 +143,7 @@ int Menu::makeChoice()
 
 // ********** PUBLIC FUNCTIONS ********** //
 
-Menu::Menu()	// Default constructor
-{
-	header = "NULL";
-}
 
-Menu::Menu(string fileName, vector<my_func> & funcs)
-{
-	this->setInputFile(fileName);
-	functions = funcs;
-}
-
-Menu::Menu(vector<string> & fullMenu, vector<my_func> & funcs)	// Constructor
-{
-	header = fullMenu[0];
-	for (unsigned int i = 1; i < fullMenu.size(); i++)
-		menuVector.push_back(fullMenu[i]);
-	functions = funcs;
-}
 
 void Menu::setMenu(string fileName, const vector<my_func> & funcs)
 {

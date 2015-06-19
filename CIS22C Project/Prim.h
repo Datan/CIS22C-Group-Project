@@ -46,13 +46,12 @@ private:
 	//Private member variables
 	LinkedStack<PrimEdge<LabelType>> undoStack;
 	vector<PrimEdge<LabelType>> minSpanTree;	
-	vector<PrimEdge<LabelType>> orderedEdges;	//Probably should rename, since the edges of the graph we are given are not ordered... - Luke
-
+	vector<PrimEdge<LabelType>> edgesVect;	//Probably should rename, since the edges of the graph we are given are not ordered... - Luke
+	
 	/* Most likely will use this in applyPrims, which are the neighbor edges of visited vertices
 	because unlike Kruskal, Prim does not know the ordering of all the edges to begin with
 	- Luke
 	*/
-	vector<PrimEdge<LabelType>> localOrderedEdges;
 
 	//Private member functions
 	void applyPrim();
@@ -60,7 +59,7 @@ private:
 	void selectionSort(vector<PrimEdge<LabelType>> &array);
 	bool notConnected(LabelType &end1, LabelType &end2);
 	void writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect);
-	void writeLocalOrderedEdges(ostream &os);
+
 	void findRightVertexAndVectEdge(vector<PrimEdge<LabelType>>& tempVect, LabelType &currVertex, vector<LabelType> &visitedVertexVect);
 
 	//	bool disconnectVisitedVertex(Vertex<LabelType>& visitedVertex);
@@ -70,10 +69,16 @@ public:
 //	~Prim(){}
 	void createMinSpanTree();
 	void writeMinSpanTree(ostream &os);
-	void writeOrderedEdges(ostream &os); // for debugging
+	void writeEdgesVect(ostream &os); // for debugging
 	bool undo();
 	bool add(LabelType start, LabelType end, float edgeWeight = 0);
 	bool remove(LabelType start, LabelType end);
+	
+	void addUsingExisting();
+	void addUsingNew();
+	void addUsingExistingAndNew();
+	
+	void breadthFirstTraversalForMST();
 };
 
 /*
@@ -136,10 +141,10 @@ void Prim<LabelType>::applyPrim()
 	vector<PrimEdge<LabelType>> tempVect;
 	vector<LabelType> visitedVertexVect;	// Change to label type, change all uses to not be a vertex
 	bool found = false;
-	int numEdges = orderedEdges.size();
+	int numEdges = edgesVect.size();
 	int edgeCount = 0;
 
-	LabelType firstVertex = orderedEdges[0].getStart();		//Grab the starting vertex of the first orderedEdge
+	LabelType firstVertex = edgesVect[0].getStart();		//Grab the starting vertex of the first orderedEdge
 	LabelType currVertex = firstVertex;		// Change to label type, change all uses to not be a vertex
 	//visitedVertexVect.push_back(firstVertex); // Don't need
 	//LinkedStack<LabelType> vertexStack;		// We don't need the vertexStack to go back
@@ -255,13 +260,13 @@ bool Prim<LabelType>::getLocalUnvisitedNeighbors(LabelType currVertex, vector<Pr
 	bool status = false;
 	//Will be set to whatever tempVect is
 	//Find currVertex's neighbors
-	for (unsigned int i = 0; i < orderedEdges.size(); i++)
+	for (unsigned int i = 0; i < edgesVect.size(); i++)
 	{
-		if ((currVertex == orderedEdges.at(i).getStart() || currVertex == orderedEdges.at(i).getEnd())
-			&& orderedEdges.at(i).isChecked() == false)
+		if ((currVertex == edgesVect.at(i).getStart() || currVertex == edgesVect.at(i).getEnd())
+			&& edgesVect.at(i).isChecked() == false)
 		{
-			tempVect.push_back(orderedEdges.at(i));
-			orderedEdges.at(i).setChecked(true);
+			tempVect.push_back(edgesVect.at(i));
+			edgesVect.at(i).setChecked(true);
 			status = true;
 		}
 	}
@@ -269,7 +274,7 @@ bool Prim<LabelType>::getLocalUnvisitedNeighbors(LabelType currVertex, vector<Pr
 	return status;
 
 	//For loop to find the edge that we want and push onto tempVect
-	//In for loop: Update edge to having been checked in orderedEdges
+	//In for loop: Update edge to having been checked in edgesVect
 
 	//Find the list of edges adjacent to the currVertex
 
@@ -331,20 +336,16 @@ void Prim<LabelType>::writeMinSpanTree(ostream &os)
 	writeVector(os, minSpanTree);
 }
 
-template <class LabelType>
-void Prim<LabelType>::writeLocalOrderedEdges(ostream &os)
-{
-	writeVector(os, localOrderedEdges);
-}
 
 template <class LabelType>
 void Prim<LabelType>::writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect)
 {
+	// Use iomanip to make look nice
 	int size = vect.size();
+	cout << "\t Vertex 1 \t \t Vertex 2 \t\t Weight" << endl;
 	for (int i = 0; i < size; ++i){
 		PrimEdge<LabelType> edge = vect[i];
-		os << "From " << edge.getStart() << " to " << edge.getEnd()
-			<< " with weight = " << edge.getWeight() << endl;
+		os << "Edge " << i+1 << ": " << edge.getStart() << " -- " << edge.getEnd() << " ( " << edge.getWeight() << " ) " << endl;
 	}
 }
 // End of function definitions to print out things
@@ -353,13 +354,13 @@ template<class LabelType>
 bool Prim<LabelType>::remove(LabelType start, LabelType end)
 {
 	vector<PrimEdge<LabelType>>::iterator iterElem;
-	for (iterElem = orderedEdges.begin(); iterElem != orderedEdges.end(); ++iterElem)
+	for (iterElem = edgesVect.begin(); iterElem != edgesVect.end(); ++iterElem)
 	{
 		LabelType end1 = iterElem->getStart();
 		LabelType end2 = iterElem->getEnd();
 		if (start == end1 && end == end2 || start == end2 && end == end1){
 			undoStack.push(*iterElem);
-			orderedEdges.erase(iterElem);
+			edgesVect.erase(iterElem);
 			break;
 		}
 	}
@@ -374,7 +375,7 @@ bool Prim<LabelType>::add(LabelType start, LabelType end, float edgeWeight = 0)
 	{
 		Edge<LabelType> edge(end, edgeWeight);
 		PrimEdge<LabelType> newEdge(start, edge);
-		orderedEdges.push_back(newEdge);
+		edgesVect.push_back(newEdge);
 		return true;
 	}
 	return false;
@@ -405,3 +406,10 @@ bool Prim<LabelType>::undo()
 		return false;
 	}
 }
+
+template <class LabelType>
+void Prim<LabelType>::writeEdgesVect(ostream &os)
+{
+	writeVector(os, edgesVect);
+}
+

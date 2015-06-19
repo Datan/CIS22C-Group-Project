@@ -1,0 +1,17 @@
+A
+B
+C
+D
+E
+F
+G
+BREAK
+2 B - E
+3 A - E
+4 B - G
+6 F - G
+8 C - D
+10 A - D
+7 A - F
+5 D - B
+2 E - G

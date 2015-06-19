@@ -76,5 +76,11 @@
     <Text Include="Test Menu.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="Test Input File2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Test Input File 3.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

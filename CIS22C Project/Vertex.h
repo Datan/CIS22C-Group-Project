@@ -31,11 +31,14 @@ private:
    // Helper method for finding a specific neighbor
    int getNeighborPosition(const LabelType& neighborVertex) const;
 
+
 public:
    /** Creates an unvisited vertex, gives it a label, and clears its
 	   adjacency list.
 	   NOTE: A vertex must have a unique label that cannot be changed. */
    Vertex(LabelType label);
+
+   vector<LabelType> getAdjacentVertices();
 
    /** @return  The label of this vertex. */
    LabelType getLabel() const;

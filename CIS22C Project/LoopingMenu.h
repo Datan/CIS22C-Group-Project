@@ -8,7 +8,10 @@ using namespace std;
 class LoopingMenu : public Menu
 {
 public:
-	virtual void runMenu();
+	LoopingMenu(){ Menu::Menu(); }
+	LoopingMenu(string fileName, vector<my_func> & funcs){ Menu::Menu(fileName, funcs); }
+	LoopingMenu(vector<string> & menu, vector<my_func> & funcs){ Menu::Menu(menu, funcs); }
+	void runMenu();
 };
 void LoopingMenu::runMenu()
 {
