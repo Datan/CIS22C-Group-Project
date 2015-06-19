@@ -1,0 +1,7 @@
+Vertex - A
+Vertex - D
+Vertex - E
+Vertex - F
+Vertex - B
+Vertex - C
+Vertex - G

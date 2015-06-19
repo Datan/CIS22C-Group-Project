@@ -284,6 +284,10 @@ bool minSpanTree(Prim<string>* graph)
 	else
 	{
 		graph->createMinSpanTree();
+		cout <<"Original edge list: " << endl << endl;
+		graph->writeEdgesVect(cout);
+		cout << "\n\n";
+		cout << "Minimum spanning tree" << endl << endl;
 		graph->writeMinSpanTree(cout);
 		pause();
 		cout << "Write tree to a file? Y/N: " << endl;
@@ -398,6 +402,7 @@ int main()
 				<< "================================================================================"
 				<< "\tMAIN MENU -> READ FROM FILE" << endl
 				<< "================================================================================";
+			mainGraph->clear();
 			readFileIntoGraph(mainGraph);
 			pause();
 		},	// End main menu option 1 (Read file into graph)
