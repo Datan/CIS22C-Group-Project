@@ -272,8 +272,30 @@ bool depthTraversal(Prim<string>* graph)
 		return true;
 	}
 }
+
+bool minSpanTree(Prim<string>* graph)
+{
+	if (graph->getNumVertices() < 1 || (graph->getNumEdges() < graph->getNumVertices() - 1))
+	{
+		cout << "ERROR: Not enough data for a minimum spanning tree" << endl;
+		return false;
+	}
+
+	else
+	{
+		graph->createMinSpanTree();
+		graph->writeMinSpanTree(cout);
+		pause();
+		cout << "Write tree to a file? Y/N: " << endl;
+		// ofstream file
+		// openOutputFile(file)
+		// graph->writeToFile();
+		return true;
+	}
+}
 int main()
 {
+	/*
 	LoopingMenu debugMenu;
 	vector<string> strDebugMenu{"Debug/Testing Menu", "Test file reading", "Run Prim graph test", "Read from file and test", "Test Traversal", "Traverse using first item of graph", "Exit Menu"};
 	vector<my_func> debugMenuFunctions{
@@ -356,7 +378,7 @@ int main()
 	};	
 	debugMenu.setMenu(strDebugMenu, debugMenuFunctions);
 	debugMenu.runMenu();
-
+	*/
 	Prim<string>* mainGraph = new Prim<string>;
 
 	LoopingMenu mainMenu;
@@ -387,25 +409,12 @@ int main()
 				<< "================================================================================"
 				<< "\tMAIN MENU -> MINMUM SPANNING TREE" << endl
 				<< "================================================================================";
-			if (mainGraph->getNumVertices() < 1 || (mainGraph->getNumEdges() < mainGraph->getNumVertices() - 1))
-				cout << "ERROR: Not enough data for a minimum spanning tree" << endl;
-			else
-			{
-				mainGraph->createMinSpanTree();
-				mainGraph->writeMinSpanTree(cout);
-				pause();
-				cout << "Write tree to a file? Y/N: " << endl;
-				// ofstream file
-				// openOutputFile(file)
-				// graph->writeToFile();
-			}
-
+			minSpanTree(mainGraph);
 			pause();
 		},		// End main menu option 4	(Solve minimum spanning tree)
-		[](){ cout << "In Main Menu option 5" << endl; },		// Main menu option 5	(Info and help)
-		[](){}		// Main menu option 6	(Exit program)
+		[](){ /* Add Help Menu */},	// Main menu option 5	(Info and help)
+		[](){ pause(); }	// Main menu option 6	(Exit program)
 	};
-	
 	
 	// Vector of lambda functions for the "Modify graph data" sub menu
 	vector<my_func> modifyMenuFunctions{
@@ -416,9 +425,7 @@ int main()
 				<< "================================================================================"
 				<< "\tMAIN MENU -> MODIFY DATA -> REMOVE EDGE" << endl
 				<< "================================================================================";
-			// Need to display all edges, and allow user to select which edge to remove
-			// use remove function
-			mainGraph->remove();
+			mainGraph->removeEdges();
 			pause();
 		},	// End modify menu option 2 (Remove an edge from the graph)
 		[&]()	// Modify menu option 3 (Undo action)
@@ -454,17 +461,21 @@ int main()
 		},	// End display menu option 2 (Display on screen using breadth-first traversal)
 		[&]()
 		{ 
+			cout
+				<< "================================================================================"
+				<< "\tMAIN MENU -> DISPLAY GRAPH DATA -> WRITE TO FILE" << endl
+				<< "================================================================================";
 			cout << "In display menu option 3" << endl; 
 			writeToTextFile(mainGraph);
 			pause();
 		},	// Display menu option 3	(Write to a text file using breadth-first traversal)
-		[](){}		// Display menu option 4	(Go back)
+		[](){}			// Display menu option 4	(Go back)
 	};
 	vector<my_func> addEdgeMenuFunctions
 	{
-		[&](){ mainGraph->addUsingExisting(); },	// Add edge menu option 1 (Add an edge using existing vertices),	// End add edge menu option 1 (Add an edge using existing vertices)
-		[&](){ mainGraph->addUsingNew(); },	// Add edge menu option 2 (Add an edge using new vertices)	// End add edge menu option 2 (Add an edge using new vertices)
-		[&](){ mainGraph->addUsingExistingAndNew(); },	// Add edge menu option 3 (Add an edge using an existing vertex and a new vertex)	// End add edge menu option 3 (Add an edge using an existing vertex and a new vertex)
+		[&](){ mainGraph->addUsingExisting(); pause();  },	// Add edge menu option 1 (Add an edge using existing vertices)
+		[&](){ mainGraph->addUsingNew(); pause(); },		// Add edge menu option 2 (Add an edge using new vertices)
+		[&](){ mainGraph->addUsingExistingAndNew(); pause(); },	// Add edge menu option 3 (Add an edge using an existing vertex and a new vertex)
 		[](){}	// Add edge menu option 4 (Go back)
 	};
 

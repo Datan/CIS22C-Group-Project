@@ -86,7 +86,7 @@ public:
 	bool add(LabelType start, LabelType end, float edgeWeight = 0);
 	bool remove(LabelType start, LabelType end);
 	
-	void remove();
+	void removeEdges();
 	void addUsingExisting();
 	void addUsingNew();
 	void addUsingExistingAndNew();
@@ -443,7 +443,7 @@ void Prim<LabelType>::writeEdgesVect(ostream &os)
 }
 
 template <class LabelType>
-void Prim<LabelType>::remove()
+void Prim<LabelType>::removeEdges()
 {
 	cout << "\tChoose an edge to remove" << endl;
 	if (this->getNumEdges() < 1)
@@ -552,7 +552,6 @@ void Prim<LabelType>::addUsingExisting()
 		else
 			cout << "ERROR: Failed to add edge" << endl;
 	}
-	pause();
 }
 
 template <class LabelType>
@@ -567,7 +566,11 @@ void Prim<LabelType>::addUsingNew()
 
 	for (string temp : strHeader)
 		cout << temp;
-
+	if (this->getNumVertices() > 0)
+	{
+		cout << "ERROR: Can only add to an empty graph" << endl;
+		return;
+	}
 	cout << "Enter vertex 1: " << endl;
 	cin >> inputAddEdge.start;
 	cin.ignore(100000, '\n');
@@ -596,7 +599,6 @@ void Prim<LabelType>::addUsingNew()
 	}
 	else
 		cout << "ERROR: Failed to add edge" << endl;
-	pause();
 }
 
 template <class LabelType>
@@ -655,5 +657,4 @@ void Prim<LabelType>::addUsingExistingAndNew()
 		else
 			cout << "ERROR: Failed to add edge" << endl;
 	}
-	pause();
 }
