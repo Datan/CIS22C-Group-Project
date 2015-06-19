@@ -41,12 +41,17 @@ protected: // protected so you can derive this class for you team project soluti
    void breadthFirstTraversalHelper(Vertex<LabelType>* startVertex, void visit(LabelType&, ofstream&), ofstream &ofs);
 
    LabelType getFirstVertex() const;
+
+
 public:
    LinkedGraph();
+   // Add to destructor
    virtual ~LinkedGraph();
    int getNumVertices() const;
    int getNumEdges() const;
    virtual bool add(LabelType start, LabelType end, float edgeWeight = 0);
+
+   void clear();
 
    // For remove to return true all of the following must be true:
    // 1) start and end vertices exist
@@ -69,10 +74,11 @@ public:
 
    bool isInGraph(LabelType & item);
 
-   void readFileIntoGraph(ifstream &inFile);
+   void readFile(ifstream &inFile);
 
    void traverseAll(void visit(LabelType&));
    void traverseAll(void visit(LabelType&, vector<LabelType>&), vector<LabelType>& vect);
+
    //---> YOU DECLARE HERE (AND WRITE BELOW) THE MEMBER FUNCTION TO
    //         WRITE THE GRAPH TO A TEXT FILE (SUGGEST TO PASS AN
    //        ofstream TO THIS !
@@ -89,9 +95,16 @@ LinkedGraph(): numberOfVertices(0), numberOfEdges(0)
 
 template<class LabelType>
 LinkedGraph<LabelType>::~LinkedGraph(){
-
+	vertices.clear();
 }
-
+template<class LabelType>
+void LinkedGraph<LabelType>::clear()
+{
+	unvisitVertices();
+	vertices.clear();
+	numberOfVertices = 0;
+	numberOfEdges = 0;
+}
 template<class LabelType>
 int LinkedGraph<LabelType>::getNumVertices() const
 {
@@ -415,7 +428,7 @@ void LinkedGraph<LabelType>::breadthFirstTraversalHelper(Vertex<LabelType>* star
 }  // end breadthFirstTraversalHelper
 
 template<class LabelType>
-void LinkedGraph<LabelType>::readFileIntoGraph(ifstream &inFile)
+void LinkedGraph<LabelType>::readFile(ifstream &inFile)
 {
 	if (!inFile || !inFile.is_open())
 		return;

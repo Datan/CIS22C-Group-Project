@@ -44,8 +44,18 @@ class Prim : public LinkedGraph < LabelType >
 	};
 
 private:
+	struct stackData
+	{
+		string start, end;
+		float weight;
+		bool isRemove;
+	};
 	//Private member variables
-	LinkedStack<PrimEdge<LabelType>> undoStack;
+//	LinkedStack<PrimEdge<LabelType>> addStack;
+//	LinkedStack<PrimEdge<LabelType>> undoStack;
+
+	LinkedStack<stackData> undoStack;
+
 	vector<PrimEdge<LabelType>> minSpanTree;	
 	vector<PrimEdge<LabelType>> edgesVect;	//Probably should rename, since the edges of the graph we are given are not ordered... - Luke
 	
@@ -68,6 +78,7 @@ private:
 public:
 //	Prim(){}
 //	~Prim(){}
+	void clear();
 	void createMinSpanTree();
 	void writeMinSpanTree(ostream &os);
 	void writeEdgesVect(ostream &os); // for debugging
@@ -75,28 +86,22 @@ public:
 	bool add(LabelType start, LabelType end, float edgeWeight = 0);
 	bool remove(LabelType start, LabelType end);
 	
+	void remove();
 	void addUsingExisting();
 	void addUsingNew();
 	void addUsingExistingAndNew();
 	
 };
 
-/*
 template <class LabelType>
-bool Prim::disconnectVisitedVertex(Vertex<LabelType>& visitedVertex)
+void Prim<LabelType>::clear()
 {
-Vertex<LabelType>* currVer;
+	LinkedGraph::clear();
+	minSpanTree.clear();
+	edgesVect.clear();
+	undoStack.clear();
 
-if (visitedVertex.isVisited())
-{
-for (int i = 0; i < visitedVertex.getNumberOfNeighbors(); i++)
-{
-currVer = vertices.getItem(visitedVertex.getNextNeighbor());
-currVer->disconnect(visitedVertex.getLabel())
 }
-}
-}
-*/
 
 
 // Algorithm for applyPrim
@@ -360,7 +365,7 @@ bool Prim<LabelType>::remove(LabelType start, LabelType end)
 		LabelType end1 = iterElem->getStart();
 		LabelType end2 = iterElem->getEnd();
 		if (start == end1 && end == end2 || start == end2 && end == end1){
-			undoStack.push(*iterElem);
+
 			edgesVect.erase(iterElem);
 			break;
 		}
@@ -387,23 +392,46 @@ bool Prim<LabelType>::undo()
 {
 	if (undoStack.size() > 0)
 	{
-		PrimEdge<LabelType> temp = undoStack.peek();
-		LabelType start = temp.getStart();
-		LabelType end = temp.getEnd();
-		float weight = temp.getWeight();
-		cout << "\nUndo\n";
+		stackData tempEdge = undoStack.peek();
+		LabelType start = tempEdge.start;
+		LabelType end = tempEdge.end;
+		float weight = tempEdge.weight;
 
-		if (add(start, end, weight))
+		if (tempEdge.isRemove)
 		{
-			undoStack.pop();
-			return true;
+			if (add(start, end, weight))
+			{
+				cout << "Re-added edge: " << tempEdge.start << " - " << tempEdge.end << " (" << tempEdge.weight << " )" << endl;
+				undoStack.pop();
+				return true;
+			}
+			else
+			{
+				cout << "ERROR: Failed to re-add edge: " << tempEdge.start << " - " << tempEdge.end << " (" << tempEdge.weight << " )" << endl;
+				return false;
+			}
+				
 		}
 		else
-			return false;
+		{
+			if (remove(start, end))
+			{
+				cout << "Removed edge: " << tempEdge.start << " - " << tempEdge.end << " (" << tempEdge.weight << " )" << endl;
+				undoStack.pop();
+				return true;
+			}
+			else
+			{
+				cout << "ERROR: Failed to remove edge: " << tempEdge.start << " - " << tempEdge.end << " (" << tempEdge.weight << " )" << endl;
+				return false;
+			}
+				
+		}
+
 	}
 	else
 	{
-		cout << "There is nothing to undo" << endl;
+		cout << "ERROR: There is nothing to undo" << endl;
 		return false;
 	}
 }
@@ -414,3 +442,218 @@ void Prim<LabelType>::writeEdgesVect(ostream &os)
 	writeVector(os, edgesVect);
 }
 
+template <class LabelType>
+void Prim<LabelType>::remove()
+{
+	cout << "\tChoose an edge to remove" << endl;
+	if (this->getNumEdges() < 1)
+	{
+		cout << "ERROR: Not enough edges to remove" << endl;
+	}
+	else
+	{
+		for (unsigned int i = 0; i < edgesVect.size(); i++)
+		{
+			PrimEdge<LabelType> edge = edgesVect[i];
+			cout << i + 1 << ") - " << ": " << edge.getStart() << " -- " << edge.getEnd() << " (" << edge.getWeight() << ") " << endl;
+		}
+		int indexChoice = choice(1, edgesVect.size());
+		PrimEdge<LabelType> edge = edgesVect[indexChoice - 1];
+		stackData edgeToRemove;
+		edgeToRemove.start = edge.getStart();
+		edgeToRemove.end = edge.getEnd();
+		edgeToRemove.weight = edge.getWeight();
+		edgeToRemove.isRemove = true;
+
+		if (remove(edgeToRemove.start, edgeToRemove.end))
+		{
+			cout << "Removed edge: " << edgeToRemove.start << " - " << edgeToRemove.end << " (" << edgeToRemove.weight << " )" << endl;
+			undoStack.push(edgeToRemove);
+		}
+		else
+		{
+			cout << "Failed to remove edge: " << edgeToRemove.start << " - " << edgeToRemove.end << " (" << edgeToRemove.weight << " )" << endl;
+		}
+		
+
+	}
+}
+
+template <class LabelType>
+void Prim<LabelType>::addUsingExisting()
+{
+	string strHeader[] = { 
+		"================================================================================", 
+		"\tAdd an edge using existing vertices\n", 
+		"================================================================================" 
+	};
+
+	for (string temp : strHeader)
+		cout << temp;
+
+	if (this->getNumVertices() < 2)
+	{
+		cout << "ERROR: Not enough vertices to add an edge" << endl;
+	}
+	else
+	{
+		stackData inputAddEdge;
+		vector<string> vectVertices;
+		int indexChoice;
+		float fInput;
+
+		// Display first list of all vertices
+		this->traverseAll(visitAddToVector, vectVertices);
+		cout << "Choose first vertex for the edge" << endl;
+		for (unsigned int i = 0; i < vectVertices.size(); i++)
+			cout << i + 1 << ") - " << vectVertices[i] << endl;
+
+		indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
+		inputAddEdge.start = vectVertices[indexChoice - 1];
+		vectVertices.erase(vectVertices.begin() + indexChoice - 1);
+		system("cls");
+
+		// Add check to display only vertexes that AREN'T connected
+		// Get vector of adjacency list
+		// Remove items in the adjacency list from the main display vector
+
+		for (string temp : strHeader)
+			cout << temp;
+		// Display second list of all vertices minus user choice
+		cout << "Choose second vertex for the edge" << endl;
+		for (unsigned int i = 0; i < vectVertices.size(); i++)
+			cout << i + 1 << ") - " << vectVertices[i] << endl;
+
+		indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
+		inputAddEdge.end = vectVertices[indexChoice - 1];
+		system("cls");
+
+		for (string temp : strHeader)
+			cout << temp;
+		cout << "Choose an edge weight: ";
+		cin >> fInput;
+		cin.ignore(100000, '\n');
+		cin.clear();
+		while (fInput <= 0)
+		{
+			cout << "Edge weight must be > 0" << endl;
+			cout << "Choose an edge weight: ";
+			cin >> fInput;
+			cin.ignore(100000, '\n');
+			cin.clear();
+		}
+		inputAddEdge.weight = fInput;
+		if (this->add(inputAddEdge.start, inputAddEdge.end, inputAddEdge.weight))
+		{
+			cout << "Successfully added edge: " << inputAddEdge.start << " - " << inputAddEdge.end << " (" << inputAddEdge.weight << ")" << endl;
+			inputAddEdge.isRemove = false;
+			this->undoStack.push(inputAddEdge);
+		}
+		else
+			cout << "ERROR: Failed to add edge" << endl;
+	}
+	pause();
+}
+
+template <class LabelType>
+void Prim<LabelType>::addUsingNew()
+{
+	string strHeader[] = { 
+		"================================================================================", 
+		"\tAdd an edge using new vertices\n", 
+		"================================================================================" 
+	};
+	stackData inputAddEdge;
+
+	for (string temp : strHeader)
+		cout << temp;
+
+	cout << "Enter vertex 1: " << endl;
+	cin >> inputAddEdge.start;
+	cin.ignore(100000, '\n');
+	cin.clear();
+	// PERFORM INPUT VALIDATION HERE
+	// Add check to make sure vertex doesn't exist
+
+	cout << "Enter vertex 2: " << endl;
+	cin >> inputAddEdge.end;
+	cin.ignore(100000, '\n');
+	cin.clear();
+	// PERFORM INPUT VALIDATION HERE
+	// Add check to make sure verttex doesn't exist
+
+	cout << "Enter edge weight: " << endl;
+	cin >> inputAddEdge.weight;
+	cin.ignore(100000, '\n');
+	cin.clear();
+	// PERFORM INPUT VALIDATION HERE
+
+	if (this->add(inputAddEdge.start, inputAddEdge.end, inputAddEdge.weight))
+	{
+		cout << "Successfully added edge" << endl;
+		inputAddEdge.isRemove = false;
+		undoStack.push(inputAddEdge);
+	}
+	else
+		cout << "ERROR: Failed to add edge" << endl;
+	pause();
+}
+
+template <class LabelType>
+void Prim<LabelType>::addUsingExistingAndNew()
+{
+	string strHeader[] = { 
+		"================================================================================",
+		"\tAdd an edge using an existing vertex and a new vertex\n", 
+		"================================================================================" 
+	};
+
+	for (string temp : strHeader)
+		cout << temp;
+
+	if (this->getNumVertices() < 1)
+	{
+		cout << "ERROR: Not enough vertices to add an edge" << endl;
+	}
+	else
+	{
+		stackData inputAddEdge;
+		vector<string> vectVertices;
+		int indexChoice;
+
+		this->traverseAll(visitAddToVector, vectVertices);
+		cout << "Choose first vertex for the edge" << endl;
+		for (unsigned int i = 0; i < vectVertices.size(); i++)
+			cout << i + 1 << ") - " << vectVertices[i] << endl;
+
+		indexChoice = choice(1, vectVertices.size());	// Get index for user choice from list
+		inputAddEdge.start = vectVertices[indexChoice - 1];
+		vectVertices.erase(vectVertices.begin() + indexChoice - 1);
+		system("cls");
+
+		for (string temp : strHeader)
+			cout << temp;
+		cout << "Vertex 1: " << inputAddEdge.start << endl;
+		cout << "Enter vertex 2: " << endl;
+		cin >> inputAddEdge.end;
+		cin.ignore(100000, '\n');
+		cin.clear();
+		// PERFORM INPUT VALIDATION HERE
+
+		cout << "Enter edge weight: " << endl;
+		cin >> inputAddEdge.weight;
+		cin.ignore(100000, '\n');
+		cin.clear();
+		// PERFORM INPUT VALIDATION HERE
+
+		if (this->add(inputAddEdge.start, inputAddEdge.end, inputAddEdge.weight))
+		{
+			cout << "Successfully added edge" << endl;
+			inputAddEdge.isRemove = false;
+			undoStack.push(inputAddEdge);
+		}
+		else
+			cout << "ERROR: Failed to add edge" << endl;
+	}
+	pause();
+}
