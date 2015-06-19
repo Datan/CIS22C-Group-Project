@@ -359,6 +359,7 @@ void Prim<LabelType>::writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect
 template<class LabelType>
 bool Prim<LabelType>::remove(LabelType start, LabelType end)
 {
+	bool bTest = false;
 	vector<PrimEdge<LabelType>>::iterator iterElem;
 	for (iterElem = edgesVect.begin(); iterElem != edgesVect.end(); ++iterElem)
 	{
@@ -367,10 +368,12 @@ bool Prim<LabelType>::remove(LabelType start, LabelType end)
 		if (start == end1 && end == end2 || start == end2 && end == end1){
 
 			edgesVect.erase(iterElem);
+			bTest = LinkedGraph<LabelType>::remove(start, end);
 			break;
 		}
 	}
-	return LinkedGraph<LabelType>::remove(start, end);
+	return bTest;
+//	return LinkedGraph<LabelType>::remove(start, end);
 }
 
 
