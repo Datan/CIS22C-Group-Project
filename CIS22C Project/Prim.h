@@ -7,6 +7,7 @@
 #include "Vertex.h"
 #include "Edge.h"
 #include "LinkedStack.h"
+#include <queue>
 
 using namespace std;
 
@@ -78,7 +79,6 @@ public:
 	void addUsingNew();
 	void addUsingExistingAndNew();
 	
-	void breadthFirstTraversalForMST();
 };
 
 /*
@@ -127,6 +127,7 @@ template <class LabelType>
 void Prim<LabelType>::createMinSpanTree()
 {
 	applyPrim();
+	//outputMinSpanTree();
 }
 
 template <class LabelType>
@@ -413,3 +414,56 @@ void Prim<LabelType>::writeEdgesVect(ostream &os)
 	writeVector(os, edgesVect);
 }
 
+//Overloaded to be able to write to text file
+template<class LabelType>
+void LinkedGraph<LabelType>::breadthFirstTraversal(void visit(LabelType&, ofstream))
+{
+	// Mark all vertices as unvisited
+	unvisitVertices();
+	// Get this first vertex of the DACMap
+	LabelType startLabel = this->getFirstVertex();
+
+	Vertex<LabelType>* startVertex = vertices.getItem(startLabel);
+	breadthFirstTraversalHelper(startVertex, visit);
+}  // end breadthFirstTraversal
+
+template<class LabelType>
+void LinkedGraph<LabelType>::breadthFirstTraversalHelper(Vertex<LabelType>* startVertex, void visit(LabelType&, ofstream))
+{
+	queue<Vertex<LabelType>*> vertexQueue;
+	LabelType startLabel = startVertex->getLabel();
+	//   cout << "Enqueue and visit " << startLabel << endl;
+	vertexQueue.push(startVertex);
+	startVertex->visit();         // Mark as visited
+	visit(startLabel);
+	startVertex->resetNeighbor(); // Reset reference for adjacency list
+
+	while (!vertexQueue.empty())
+	{
+		// Remove vertex from queue
+		Vertex<LabelType>* nextVertex = vertexQueue.front();
+		vertexQueue.pop();
+		LabelType nextLabel = nextVertex->getLabel();
+		//      cout << "Dequeue " << nextLabel << endl;
+		//      cout << "Consider " << nextLabel << "'s " << nextVertex->getNumberOfNeighbors() << " neighbors." << endl;
+
+		// Add neighbors of visited vertex to queue
+		for (int index = 1; index <= nextVertex->getNumberOfNeighbors(); index++)
+		{
+			LabelType neighborLabel = nextVertex->getNextNeighbor();
+			//         cout << "Neighbor " << neighborLabel;
+			Vertex<LabelType>* neighbor = new Vertex < LabelType > ;
+			neighbor = (vertices.getItem(neighborLabel));
+			if (!neighbor->isVisited())
+			{
+				//            cout << " is not visited; enqueue and visit it." << endl;
+				vertexQueue.push(neighbor);
+				neighbor->visit();         // Mark as visited
+				visit(neighborLabel);
+				neighbor->resetNeighbor(); // Reset reference for adjacency list
+			}
+			//         else
+			//            cout << " was visited already; ignore it." << endl;
+		}  // end for
+	}  // end while
+}  // end breadthFirstTraversalHelper

@@ -371,6 +371,22 @@ void addEdgeToGraph(Prim<string>* graph, LinkedStack<inputEdge>* addStack)
 	addEdgeMenu.runMenu();
 	// Give the user an option of adding edges in multiple ways
 }
+
+
+void writeToTextFile(Prim<string>* graph)
+{
+	ofstream myFile;
+	string fileName;
+	cout << "Enter the name you wish to give the file: ";
+	getline(cin, fileName);
+	myFile.open(fileName);
+	if (myFile.is_open)
+	{
+		breadthFirstTraversal();
+	}
+	
+}
+
 int main()
 {
 	LoopingMenu debugMenu;
