@@ -38,6 +38,8 @@ protected: // protected so you can derive this class for you team project soluti
    void depthFirstTraversalHelper(Vertex<LabelType>* startVertex,  void visit(LabelType&));
    void breadthFirstTraversalHelper(Vertex<LabelType>* startVertex, void visit(LabelType&));
 
+   void breadthFirstTraversalHelper(Vertex<LabelType>* startVertex, void visit(LabelType&, ofstream&), ofstream &ofs);
+
    LabelType getFirstVertex() const;
 public:
    LinkedGraph();
@@ -62,7 +64,12 @@ public:
    void depthFirstTraversal(void visit(LabelType&));
    void breadthFirstTraversal(void visit(LabelType&));
 
+
+   void breadthFirstTraversal(void visit(LabelType&, ofstream&), ofstream& ofs);
+
    bool isInGraph(LabelType & item);
+
+   void readFileIntoGraph(ifstream &inFile);
 
    void traverseAll(void visit(LabelType&));
    void traverseAll(void visit(LabelType&, vector<LabelType>&), vector<LabelType>& vect);
@@ -354,4 +361,91 @@ void LinkedGraph<LabelType>::breadthFirstTraversal(void visit(LabelType&))
 	breadthFirstTraversalHelper(startVertex, visit);
 }  // end breadthFirstTraversal
 
+//Overloaded to be able to write to text file
+template<class LabelType>
+void LinkedGraph<LabelType>::breadthFirstTraversal(void visit(LabelType&, ofstream&), ofstream &ofs)
+{
+	// Mark all vertices as unvisited
+	unvisitVertices();
+	// Get this first vertex of the DACMap
+	LabelType startLabel = this->getFirstVertex();
+
+	Vertex<LabelType>* startVertex = vertices.getItem(startLabel);
+	breadthFirstTraversalHelper(startVertex, visit, ofs);
+}  // end breadthFirstTraversal
+
+template<class LabelType>
+void LinkedGraph<LabelType>::breadthFirstTraversalHelper(Vertex<LabelType>* startVertex, void visit(LabelType&, ofstream&), ofstream &ofs)
+{
+	queue<Vertex<LabelType>*> vertexQueue;
+	LabelType startLabel = startVertex->getLabel();
+	//   cout << "Enqueue and visit " << startLabel << endl;
+	vertexQueue.push(startVertex);
+	startVertex->visit();         // Mark as visited
+	visit(startLabel, ofs);
+	startVertex->resetNeighbor(); // Reset reference for adjacency list
+
+	while (!vertexQueue.empty())
+	{
+		// Remove vertex from queue
+		Vertex<LabelType>* nextVertex = vertexQueue.front();
+		vertexQueue.pop();
+		LabelType nextLabel = nextVertex->getLabel();
+		//      cout << "Dequeue " << nextLabel << endl;
+		//      cout << "Consider " << nextLabel << "'s " << nextVertex->getNumberOfNeighbors() << " neighbors." << endl;
+
+		// Add neighbors of visited vertex to queue
+		for (int index = 1; index <= nextVertex->getNumberOfNeighbors(); index++)
+		{
+			LabelType neighborLabel = nextVertex->getNextNeighbor();
+			//         cout << "Neighbor " << neighborLabel;
+			Vertex<LabelType>* neighbor = vertices.getItem(neighborLabel);
+			if (!neighbor->isVisited())
+			{
+				//            cout << " is not visited; enqueue and visit it." << endl;
+				vertexQueue.push(neighbor);
+				neighbor->visit();         // Mark as visited
+				visit(neighborLabel, ofs);
+				neighbor->resetNeighbor(); // Reset reference for adjacency list
+			}
+			//         else
+			//            cout << " was visited already; ignore it." << endl;
+		}  // end for
+	}  // end while
+}  // end breadthFirstTraversalHelper
+
+template<class LabelType>
+void LinkedGraph<LabelType>::readFileIntoGraph(ifstream &inFile)
+{
+	if (!inFile || !inFile.is_open())
+		return;
+	if (inFile.eof())
+	{
+		inFile.clear();
+		inFile.seekg(0, std::ios::beg);
+	}
+
+	string strTemp;
+	vector<string> vecVertices;	// Will be used to test if all the vertices from the file exist in the graph
+	while (strTemp != "BREAK")
+	{
+		inFile >> strTemp;
+		vecVertices.push_back(strTemp);
+	}
+
+	//	Prim<string>* tempPrim = new Prim < string > ;	Will be used to initially read, then will be copied to graph if conditions are met
+	string strStart, strEnd;
+	char cTemp;
+	float dWeight;
+	while (inFile >> dWeight >> strStart >> cTemp >> strEnd)
+	{
+		//		iWeight = static_cast<int> (dWeight * 100);
+		this->add(strStart, strEnd, dWeight);
+	}
+
+	// Add testing to see that every vertex in the file is in the graph (doesn't test edges) (yet?)
+	// if (tempPrim has all vertexes)
+	// delete graph;
+	// graph = tempPrim;
+}
 #endif

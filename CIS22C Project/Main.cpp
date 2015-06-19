@@ -59,6 +59,12 @@ void display(ItemType& anItem)
    cout << "Vertex - " << anItem << endl;
 }
 
+template<typename ItemType>
+void writeFile(ItemType& anItem, ofstream &ofs)
+{
+	ofs << "Vertex - " << anItem << endl;
+}
+
 // To be used as the visit function of a traversal function
 template<typename ItemType>
 void visitAddToVector(ItemType & anItem, vector<ItemType> &vect)	
@@ -176,7 +182,6 @@ void readFileIntoGraph(Prim<string>* graph, ifstream &inFile)
 		inFile.clear();
 		inFile.seekg(0, std::ios::beg);
 	}
-
 	string strTemp;
 	vector<string> vecVertices;	// Will be used to test if all the vertices from the file exist in the graph
 	while (strTemp != "BREAK")
@@ -380,9 +385,10 @@ void writeToTextFile(Prim<string>* graph)
 	cout << "Enter the name you wish to give the file: ";
 	getline(cin, fileName);
 	myFile.open(fileName);
-	if (myFile.is_open)
+	if (myFile.is_open())
 	{
-		breadthFirstTraversal();
+		graph->breadthFirstTraversal(writeFile, myFile);
+		pause();
 	}
 	
 }
@@ -546,7 +552,7 @@ int main()
 				stackAddEdge->pop();
 
 				mainGraph->remove(tempEdge.start, tempEdge.end);
-				// cout << tempEdge <<  " successfully removed" << endl;
+				cout << "Removed edge: " << tempEdge.start << " - " << tempEdge.end << " (" << tempEdge.weight << " )" << endl;
 				cout << "Latest addition successfully undone" << endl;
 			}
 			else
@@ -577,7 +583,7 @@ int main()
 				stackRemoveEdge->pop();
 
 				mainGraph->add(tempEdge.start, tempEdge.end, tempEdge.weight);
-				// cout << tempEdge <<  " successfully re-added" << endl;
+				cout << "Re-added edge: " << tempEdge.start << " - " << tempEdge.end << " (" << tempEdge.weight << " )" << endl;
 				cout << "Latest removal successfully undone" << endl;
 			}
 			else	// The stack has no items, therefore no removals to undo
@@ -616,7 +622,12 @@ int main()
 				mainGraph->breadthFirstTraversal(display);
 			pause();
 		},	// End display menu option 2 (Display on screen using breadth-first traversal)
-		[](){ cout << "In display menu option 3" << endl; },	// Display menu option 3	(Write to a text file using breadth-first traversal)
+		[&]()
+		{ 
+			cout << "In display menu option 3" << endl; 
+			writeToTextFile(mainGraph);
+			pause();
+		},	// Display menu option 3	(Write to a text file using breadth-first traversal)
 		[](){}		// Display menu option 4	(Go back)
 	};
 
