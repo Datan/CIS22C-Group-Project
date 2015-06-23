@@ -51,18 +51,10 @@ private:
 		bool isRemove;
 	};
 	//Private member variables
-//	LinkedStack<PrimEdge<LabelType>> addStack;
-//	LinkedStack<PrimEdge<LabelType>> undoStack;
-
 	LinkedStack<stackData> undoStack;
 
 	vector<PrimEdge<LabelType>> minSpanTree;	
-	vector<PrimEdge<LabelType>> edgesVect;	//Probably should rename, since the edges of the graph we are given are not ordered... - Luke
-	
-	/* Most likely will use this in applyPrims, which are the neighbor edges of visited vertices
-	because unlike Kruskal, Prim does not know the ordering of all the edges to begin with
-	- Luke
-	*/
+	vector<PrimEdge<LabelType>> edgesVect;	
 
 	//Private member functions
 	void applyPrim();
@@ -73,7 +65,6 @@ private:
 
 	void findRightVertexAndVectEdge(vector<PrimEdge<LabelType>>& tempVect, LabelType &currVertex, vector<LabelType> &visitedVertexVect);
 
-	//	bool disconnectVisitedVertex(Vertex<LabelType>& visitedVertex);
 
 public:
 //	Prim(){}
@@ -206,7 +197,6 @@ void Prim<LabelType>::applyPrim()
 			findRightVertexAndVectEdge(tempVect, currVertex, visitedVertexVect);
 			minSpanTree.push_back(tempVect[0]);
 			tempVect.erase(tempVect.begin());
-
 		}
 		found = false;
 	}
@@ -258,7 +248,6 @@ where v is a visited vertex and u is an unvisited vertex
 @param currVertex - A vertex that has currently been visited at that point in time within applyPrim()
 @param found - A boolean passed by reference that indicates whether was able to find existing neighboring edges connected to curreVertex
 @return localOrderedEdges - defined in private member variables as a vector<PrimEdge<LabelType>>
-- Luke
 */
 template <class LabelType>
 bool Prim<LabelType>::getLocalUnvisitedNeighbors(LabelType currVertex, vector<PrimEdge<LabelType>> &tempVect)
@@ -278,14 +267,6 @@ bool Prim<LabelType>::getLocalUnvisitedNeighbors(LabelType currVertex, vector<Pr
 	}
 	selectionSort(tempVect);
 	return status;
-
-	//For loop to find the edge that we want and push onto tempVect
-	//In for loop: Update edge to having been checked in edgesVect
-
-	//Find the list of edges adjacent to the currVertex
-
-	//Call selectionSort(localVect)
-	//Return true if was able push onto tempVect
 }
 
 /** Uses the selection sort algortihm to sort localOrderedEdges in ascending order, defined above.
@@ -390,6 +371,10 @@ bool Prim<LabelType>::add(LabelType start, LabelType end, float edgeWeight = 0)
 	return false;
 }
 
+/**  Checks the undo stack to see if the last edge in the stack was recently removed or added.
+If it was removed, we add it back in. If it was added, then we remove it.
+@return True if we were able to undo the last operation, false if we were not able to undo.
+*/
 template <class LabelType>
 bool Prim<LabelType>::undo()
 {
@@ -439,11 +424,14 @@ bool Prim<LabelType>::undo()
 	}
 }
 
+
+/* Helper function to write out the currect vector of edges*/
 template <class LabelType>
 void Prim<LabelType>::writeEdgesVect(ostream &os)
 {
 	writeVector(os, edgesVect);
 }
+
 
 template <class LabelType>
 void Prim<LabelType>::removeEdges()
@@ -477,8 +465,6 @@ void Prim<LabelType>::removeEdges()
 		{
 			cout << "Failed to remove edge: " << edgeToRemove.start << " - " << edgeToRemove.end << " (" << edgeToRemove.weight << " )" << endl;
 		}
-		
-
 	}
 }
 
